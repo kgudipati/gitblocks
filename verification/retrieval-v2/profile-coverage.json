@@ -5,8 +5,8 @@
   "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
   "taxonomyVersion": "1.0.0",
   "taxonomySemanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
-  "profileAuthorityDigest": "b76a50383bcbecd581cc2919cc8f62aabee55a8a3150d681b89748853fdad912",
-  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+  "profileAuthorityDigest": "06f5dd9427e7aeb8c6b2f0a1adabf816caa1ac5ff3b7c710151657ae8918e730",
+  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
   "totals": {
     "profiles": 150,
     "fieldsPerProfile": 27,
@@ -20,17 +20,17 @@
     },
     "conceptFieldCells": 450,
     "conceptFieldCoverage": {
-      "unknown": 421,
-      "partial": 29,
+      "unknown": 393,
+      "partial": 57,
       "complete": 0
     },
     "fullyPopulatedConceptFields": 0,
     "conceptPairs": {
       "total": 3060,
-      "present": 7,
-      "absent": 44,
+      "present": 20,
+      "absent": 81,
       "conflicting": 0,
-      "unaddressed": 3009
+      "unaddressed": 2959
     },
     "taxonomyConcepts": {
       "total": 45,
@@ -65,17 +65,17 @@
       "fieldId": "required-infrastructure",
       "taxonomyKind": "infrastructure",
       "coverage": {
-        "unknown": 125,
-        "partial": 25,
+        "unknown": 100,
+        "partial": 50,
         "complete": 0
       },
       "fullyPopulated": 0,
       "conceptPairs": {
         "total": 930,
-        "present": 3,
-        "absent": 44,
+        "present": 13,
+        "absent": 81,
         "conflicting": 0,
-        "unaddressed": 883
+        "unaddressed": 836
       },
       "taxonomyConcepts": {
         "total": 7,
@@ -87,17 +87,17 @@
       "fieldId": "optional-infrastructure",
       "taxonomyKind": "infrastructure",
       "coverage": {
-        "unknown": 146,
-        "partial": 4,
+        "unknown": 143,
+        "partial": 7,
         "complete": 0
       },
       "fullyPopulated": 0,
       "conceptPairs": {
         "total": 930,
-        "present": 4,
+        "present": 7,
         "absent": 0,
         "conflicting": 0,
-        "unaddressed": 926
+        "unaddressed": 923
       },
       "taxonomyConcepts": {
         "total": 7,
@@ -107,11 +107,11 @@
     }
   ],
   "sourceAuthority": {
-    "reviewedClaims": 51,
+    "reviewedClaims": 101,
     "exactScopeAdmissions": 0,
-    "artifactLineBasisReferences": 73,
+    "artifactLineBasisReferences": 152,
     "structuredSemanticBasisReferences": 0,
-    "generatedClaimProvenanceReferences": 51
+    "generatedClaimProvenanceReferences": 101
   },
   "hardConstraintDemand": {
     "state": "unbound",
@@ -119,5 +119,5 @@
     "authorityDigest": null,
     "reasonCode": "product-demand-authority-not-bound"
   },
-  "reportDigest": "c0d72ba74b5d3ba2e57abade0d80fd69ba95b36279ee7595a2d59c938683d864"
+  "reportDigest": "6eb3fe03138babc467d1a242848a6211bba71f0049b57a6bd860e158dafa6b95"
 }

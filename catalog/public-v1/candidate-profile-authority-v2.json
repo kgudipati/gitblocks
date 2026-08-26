@@ -22211,12 +22211,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-50ccc982c9e0cf505683a34293af011e11f8722f"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-68f67ad3142addf089e5ba5fe842fbc17fbe3233b10caade",
+                  "claimDigest": "68f67ad3142addf089e5ba5fe842fbc17fbe3233b10caadedcb327e646a4b6a4",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-6289e85466803725c0f3e34b456ad81b4810110d90cb2178",
+                  "claimDigest": "6289e85466803725c0f3e34b456ad81b4810110d90cb21788f46819a6ee2f808",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -22365,8 +22399,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-d7310f25753825bcc2bed0e3c4b87771edfa94544000d2a0",
-      "semanticProfileDigest": "d7310f25753825bcc2bed0e3c4b87771edfa94544000d2a04b36b9dad65e6f81"
+      "deterministicProfileId": "profile-eb2e6d266c2532a1591449f0c544f8faa429366039ffc294",
+      "semanticProfileDigest": "eb2e6d266c2532a1591449f0c544f8faa429366039ffc294ac60e3435179925d"
     },
     {
       "contractVersion": "2.0.0",
@@ -22944,22 +22978,75 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-c5e89738b243326ceb8a27f8901b5dcc81390bda"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-14847b015fb737983dbb94d25d7bfaf09a974734c3f593bf",
+                  "claimDigest": "14847b015fb737983dbb94d25d7bfaf09a974734c3f593bf38d31fdfc618db67",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-b84962f3a86b987945e0c42267b971ef8c468cf09af54675",
+                  "claimDigest": "b84962f3a86b987945e0c42267b971ef8c468cf09af54675000aa89405b7588d",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-c5e89738b243326ceb8a27f8901b5dcc81390bda"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-2a0a80c6df2d5abe6efdcc560a9989ecb984b3738d8a7717",
+                  "claimDigest": "2a0a80c6df2d5abe6efdcc560a9989ecb984b3738d8a7717b701943dca571ff3",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -23098,8 +23185,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-c0c6a9fe57bcd082cb235c414baa4d63fb394683bd16d723",
-      "semanticProfileDigest": "c0c6a9fe57bcd082cb235c414baa4d63fb394683bd16d72399cc5ab0f169668b"
+      "deterministicProfileId": "profile-a62a593438ecedc2127a6f9626f6b105917df51d8b9949e5",
+      "semanticProfileDigest": "a62a593438ecedc2127a6f9626f6b105917df51d8b9949e514fd2553ec893580"
     },
     {
       "contractVersion": "2.0.0",
@@ -23320,12 +23407,31 @@
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-566e9f3c27e58b3890a721b1f1ab534d0df1e547"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-26980b76f69099c41aa378cf371b0426ebcf595d4beebd3a",
+                  "claimDigest": "26980b76f69099c41aa378cf371b0426ebcf595d4beebd3aaf921704c87b4aa3",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -23464,8 +23570,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-8f593235575b412728a4be55a690215d224e519c18c11949",
-      "semanticProfileDigest": "8f593235575b412728a4be55a690215d224e519c18c11949cc49472e5aaee04d"
+      "deterministicProfileId": "profile-74829204280eed29ee31cf436b0af444d56e29ad5f61fba3",
+      "semanticProfileDigest": "74829204280eed29ee31cf436b0af444d56e29ad5f61fba340730cb1c7ed58af"
     },
     {
       "contractVersion": "2.0.0",
@@ -23676,12 +23782,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-d135f1439bee74e989b7f9b41ecd542cc87f024a"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-de101af537fb6cf90e0ec80ba7492767281c9407c9dd5d37",
+                  "claimDigest": "de101af537fb6cf90e0ec80ba7492767281c9407c9dd5d370edd2cce6c2eafcd",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-5b6d9face6046e66447207cba38fce9ea6180e8258fba217",
+                  "claimDigest": "5b6d9face6046e66447207cba38fce9ea6180e8258fba2176f92f51486356ba6",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -23830,8 +23970,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-39151f783de842fd81eb2d2df0f2d213a562d71978e104fa",
-      "semanticProfileDigest": "39151f783de842fd81eb2d2df0f2d213a562d71978e104faf5e006f516eb8256"
+      "deterministicProfileId": "profile-beb3d61d15ccbff61d21770a664edcf828fde30a52ca0a9c",
+      "semanticProfileDigest": "beb3d61d15ccbff61d21770a664edcf828fde30a52ca0a9caa27f2d4b9391a0a"
     },
     {
       "contractVersion": "2.0.0",
@@ -24043,12 +24183,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-cabb58213171f6c9aebc4ec5a74339c2fe4b2c4c"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-726e4b3cea3a44fc17d0ab45ecf8ad0c6632ebab8ad88bcd",
+                  "claimDigest": "726e4b3cea3a44fc17d0ab45ecf8ad0c6632ebab8ad88bcdf5716d2bf1a1e3d0",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-62f3c83d31ec499a5d857138d3cc66a3d1573e92b47f47a8",
+                  "claimDigest": "62f3c83d31ec499a5d857138d3cc66a3d1573e92b47f47a8c90dbd4bce293dc4",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -24197,8 +24371,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-e111c9a09aa3701fbbf3de90179f1027ffd5c7942655f401",
-      "semanticProfileDigest": "e111c9a09aa3701fbbf3de90179f1027ffd5c7942655f4015092b45b297d191e"
+      "deterministicProfileId": "profile-0ad895633bedd8676b55a4786d27a2f39138c985d3caf1a3",
+      "semanticProfileDigest": "0ad895633bedd8676b55a4786d27a2f39138c985d3caf1a325a0f4a1be61c91b"
     },
     {
       "contractVersion": "2.0.0",
@@ -24410,12 +24584,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-465a5e2f452048c99790229ba813bed795b9f366"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-3322c4c298e6038e4a050c1e1b82b98ebd2fcd15ae86fc34",
+                  "claimDigest": "3322c4c298e6038e4a050c1e1b82b98ebd2fcd15ae86fc3432a3e5e90eed66d5",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-38b957464f67b3438e7d224102d1ae91f95866cd00495ca4",
+                  "claimDigest": "38b957464f67b3438e7d224102d1ae91f95866cd00495ca443a9e65f63ac3c52",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -24564,8 +24772,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-66fbcf6d2b939ce4050fe7562056aa65468c1b37b2918308",
-      "semanticProfileDigest": "66fbcf6d2b939ce4050fe7562056aa65468c1b37b291830873384bf87852f5dc"
+      "deterministicProfileId": "profile-0ff8532c69970f5b4a3b34ff21187304db8b0643f03f314b",
+      "semanticProfileDigest": "0ff8532c69970f5b4a3b34ff21187304db8b0643f03f314b04b59139b68fca5c"
     },
     {
       "contractVersion": "2.0.0",
@@ -24777,12 +24985,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-73d065506931fc876c67c721bc424b2bd76b520b"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-8f8e172184fb73174a4abcee26daaa29726b802480b588c5",
+                  "claimDigest": "8f8e172184fb73174a4abcee26daaa29726b802480b588c50559ae7fe9dae670",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-cc2c428be52af608a0978a8e494482e73293215a340d6ec5",
+                  "claimDigest": "cc2c428be52af608a0978a8e494482e73293215a340d6ec570592b2a75377fba",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -24931,8 +25173,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-bc33fc745deff18ff247c13c67bdf3ea0228bca226966eb9",
-      "semanticProfileDigest": "bc33fc745deff18ff247c13c67bdf3ea0228bca226966eb9c385e55fa90e7247"
+      "deterministicProfileId": "profile-e4ac157b0c2b791d63dbdfc04f6facdb67328a57532533f9",
+      "semanticProfileDigest": "e4ac157b0c2b791d63dbdfc04f6facdb67328a57532533f9bb58c9b7772207da"
     },
     {
       "contractVersion": "2.0.0",
@@ -25144,12 +25386,31 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-12f6bcc954167a3ec67ef2ac229b4ea8319f7a20"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-dd035c3116843992d414b56220b184943549a6d52963248a",
+                  "claimDigest": "dd035c3116843992d414b56220b184943549a6d52963248acbaa55cc1e3ba012",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -25298,8 +25559,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-61f246ca6ee8718cc4134796b4b79a9ba69cfe49024955d4",
-      "semanticProfileDigest": "61f246ca6ee8718cc4134796b4b79a9ba69cfe49024955d405635da1ff7ca333"
+      "deterministicProfileId": "profile-e8a3d7a2d07776388a6664b8d6fa47e9b72890dca05959ae",
+      "semanticProfileDigest": "e8a3d7a2d07776388a6664b8d6fa47e9b72890dca05959aeb7c7fe13b8cd0c1f"
     },
     {
       "contractVersion": "2.0.0",
@@ -25510,12 +25771,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-576d4be8ab27ec2aa00032c610c64d6af1934088"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-f4d4e8364985d91de4d257cb07c7bc04b0e0e0d866898e0d",
+                  "claimDigest": "f4d4e8364985d91de4d257cb07c7bc04b0e0e0d866898e0d7dfbf45b6ba25541",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-b529fbf6a95170766d2a7ec9934d3ad6e318b07c07b28d4e",
+                  "claimDigest": "b529fbf6a95170766d2a7ec9934d3ad6e318b07c07b28d4ed832ee5516bd463d",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -25664,8 +25959,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-e2fd759068ebdd97b330665c6a90b1248292c20d9be74323",
-      "semanticProfileDigest": "e2fd759068ebdd97b330665c6a90b1248292c20d9be7432308c1363b6f1deea9"
+      "deterministicProfileId": "profile-aeeebf47df0b23977382dc105f2e6b2a5b832983c45c1d18",
+      "semanticProfileDigest": "aeeebf47df0b23977382dc105f2e6b2a5b832983c45c1d1866be19e1a5667cc6"
     },
     {
       "contractVersion": "2.0.0",
@@ -25876,22 +26171,75 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-a706ddb1c9b1358506db965df2bab11c964f7777"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-ba8963471f6c121fbd6624d6cedbba28cee8299e45a501f8",
+                  "claimDigest": "ba8963471f6c121fbd6624d6cedbba28cee8299e45a501f8089b9e9a3e969408",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-de422c59d68206470b86a3b4b15a714ca51f5dfd95b6fc77",
+                  "claimDigest": "de422c59d68206470b86a3b4b15a714ca51f5dfd95b6fc775f37f3677df08497",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-a706ddb1c9b1358506db965df2bab11c964f7777"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-577affd4be6e635a9ad46bc3bc5505d93427d9e9f8cb5daf",
+                  "claimDigest": "577affd4be6e635a9ad46bc3bc5505d93427d9e9f8cb5dafd12884a4a3ca9bed",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -26030,8 +26378,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-277025de5e3b523ba6cc468706e50e429b6ece85155a0503",
-      "semanticProfileDigest": "277025de5e3b523ba6cc468706e50e429b6ece85155a050352d8cce38f75ddbf"
+      "deterministicProfileId": "profile-455258f5711b4a9ad1fbad16a3fd3c80d493c9f1a68d55b3",
+      "semanticProfileDigest": "455258f5711b4a9ad1fbad16a3fd3c80d493c9f1a68d55b358e2b40376a72351"
     },
     {
       "contractVersion": "2.0.0",
@@ -26243,12 +26591,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-cea9d60e0341718b44b1851ff252b314527adbdf"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-391a3338c7caa71106dca3c75208f3d5745ae26c0eda3cfd",
+                  "claimDigest": "391a3338c7caa71106dca3c75208f3d5745ae26c0eda3cfd58be34db75677194",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-1f3dcd745292530ec0a749a22225405d75d7abdd21dd656f",
+                  "claimDigest": "1f3dcd745292530ec0a749a22225405d75d7abdd21dd656f5ebff5849a68ed1e",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -26397,8 +26779,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-35901d92219f01b3260c6bb9d183e01fbd86151882da1766",
-      "semanticProfileDigest": "35901d92219f01b3260c6bb9d183e01fbd86151882da1766e3f4a4a5f261166d"
+      "deterministicProfileId": "profile-10bf3e7aed37a9d7de1a2d2507f7f5fc1567fc6c06945127",
+      "semanticProfileDigest": "10bf3e7aed37a9d7de1a2d2507f7f5fc1567fc6c069451275adca14a955d5689"
     },
     {
       "contractVersion": "2.0.0",
@@ -26976,12 +27358,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-f7ae7bdaeb56bb98df1407b3694e9ea192a86501"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-09d28f7e0c87396922a4d7c81aff902d540580cb8eb94c72",
+                  "claimDigest": "09d28f7e0c87396922a4d7c81aff902d540580cb8eb94c724c189bd9b7f86106",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-6a6161170137245f838896c968bd289afb378bc4c5fec09c",
+                  "claimDigest": "6a6161170137245f838896c968bd289afb378bc4c5fec09cf461f958ffadbb4a",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -27130,8 +27546,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-78c6ac9f136dd7d00770e4ff634a1d146252399368bd7e82",
-      "semanticProfileDigest": "78c6ac9f136dd7d00770e4ff634a1d146252399368bd7e82430279b9f087ca0a"
+      "deterministicProfileId": "profile-1522d9b209cb5e28611b2e459879e9bbe105bf96c48292a6",
+      "semanticProfileDigest": "1522d9b209cb5e28611b2e459879e9bbe105bf96c48292a6d26a34897af4dc78"
     },
     {
       "contractVersion": "2.0.0",
@@ -27709,12 +28125,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-c5647b1a8890319169fa4ce2cf4ed4122c1c704a"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-7507040a2dfed7b1a6bd986294d06c17d41a341e5b74c8f1",
+                  "claimDigest": "7507040a2dfed7b1a6bd986294d06c17d41a341e5b74c8f11e8da3dc6576ce7d",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-77a69379803fcca3dbfeef000fb070db93234d317ca473e8",
+                  "claimDigest": "77a69379803fcca3dbfeef000fb070db93234d317ca473e84edc1e6be2b927da",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -27863,8 +28313,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-f70cf85a00aa4295ecc00422cb599f56e79572829572fd38",
-      "semanticProfileDigest": "f70cf85a00aa4295ecc00422cb599f56e79572829572fd38dac4df946d9fe81e"
+      "deterministicProfileId": "profile-d72b43e9024e25b61e60c1d411fd1b15ef08343328ee807c",
+      "semanticProfileDigest": "d72b43e9024e25b61e60c1d411fd1b15ef08343328ee807cf7e0996399b4b22c"
     },
     {
       "contractVersion": "2.0.0",
@@ -28076,12 +28526,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-44e78aca7d06f0dfdbfb8bb4f8dc5282bf6d04c9"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-7276ff1c22bbcf79c4f3c0cd3d0fe047d6ceb268f3cee492",
+                  "claimDigest": "7276ff1c22bbcf79c4f3c0cd3d0fe047d6ceb268f3cee4921e1e225b958d9fdb",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-f9ec81ed93b2dc6224cf2f2f3f5879ce63d2d7251a6a4d17",
+                  "claimDigest": "f9ec81ed93b2dc6224cf2f2f3f5879ce63d2d7251a6a4d17a0ace54582243aa6",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -28230,8 +28714,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-ec3be57e7a1557ece67e4157875088063785ee29c763c331",
-      "semanticProfileDigest": "ec3be57e7a1557ece67e4157875088063785ee29c763c331e2260524ff090500"
+      "deterministicProfileId": "profile-30bbdb94883f1dca11d7f36320ca93a8e6dd2e3a3de89e9b",
+      "semanticProfileDigest": "30bbdb94883f1dca11d7f36320ca93a8e6dd2e3a3de89e9b22e24a963ea5b4cb"
     },
     {
       "contractVersion": "2.0.0",
@@ -28443,12 +28927,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-bfc02c3b008b725fc7f93d948468f08f58308acc"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-b251289126885ed398e3efad6c8bc62e26942ff66a3606e1",
+                  "claimDigest": "b251289126885ed398e3efad6c8bc62e26942ff66a3606e121bd111bb0035785",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-75e0b78d55d8b3dac104d4435802e14ea9dd73147eda7561",
+                  "claimDigest": "75e0b78d55d8b3dac104d4435802e14ea9dd73147eda7561c3fefb3d9269ebe4",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -28597,8 +29115,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-1371e7817ce4c098e233c630e8be911b5f4e7375d6415c75",
-      "semanticProfileDigest": "1371e7817ce4c098e233c630e8be911b5f4e7375d6415c75ab2b0ffa24b6f35a"
+      "deterministicProfileId": "profile-79ddaea485fafb0db9ef1f4fa58527df935e1d0767445e24",
+      "semanticProfileDigest": "79ddaea485fafb0db9ef1f4fa58527df935e1d0767445e2443aa077358e462c1"
     },
     {
       "contractVersion": "2.0.0",
@@ -28810,12 +29328,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-afaefb9b52737955633676ef7c5913146de45eb9"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-245e6d7860051fed2dc461c96fe381ddd4fbcf8df48111f2",
+                  "claimDigest": "245e6d7860051fed2dc461c96fe381ddd4fbcf8df48111f24a549baeae750810",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-40853f78c595645ff99443fbef580c718977c39f1c670196",
+                  "claimDigest": "40853f78c595645ff99443fbef580c718977c39f1c6701966325e5360414f135",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -28964,8 +29516,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-4c359a09ae6570cd34c1eed3a3c26b78098273d2a3296777",
-      "semanticProfileDigest": "4c359a09ae6570cd34c1eed3a3c26b78098273d2a3296777634f9b156eb42370"
+      "deterministicProfileId": "profile-06797a035e949fec60cefd445b5be875355ffa266421af85",
+      "semanticProfileDigest": "06797a035e949fec60cefd445b5be875355ffa266421af852d0374a497928046"
     },
     {
       "contractVersion": "2.0.0",
@@ -29177,12 +29729,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-180ab9e25cd10b6f548767d7176076b50d25e188"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-a0c56ca50f794106520397751a7e02cda57337336b2b7e7c",
+                  "claimDigest": "a0c56ca50f794106520397751a7e02cda57337336b2b7e7cd69254d357f216f9",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-7cc501ab32fee2bf834ba6bfeb76d1408d61512be4eb8ef6",
+                  "claimDigest": "7cc501ab32fee2bf834ba6bfeb76d1408d61512be4eb8ef6e6fba48727fcb2b3",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -29331,8 +29917,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-7e0f95d3db9713aeb56ccd77156170367dcb8de3095edbcc",
-      "semanticProfileDigest": "7e0f95d3db9713aeb56ccd77156170367dcb8de3095edbcc450d4c882a1bf873"
+      "deterministicProfileId": "profile-06c1cdc05b4d095542d9584ea1a6f8b16a7c1487d6afad39",
+      "semanticProfileDigest": "06c1cdc05b4d095542d9584ea1a6f8b16a7c1487d6afad397636b2896943a216"
     },
     {
       "contractVersion": "2.0.0",
@@ -29544,12 +30130,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-55ee32f66f0bf683ff823c0ad8be2056dbc91ce4"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-1958d090a59a22ee09fbdd4397fab1eb0244fb3e1fc75b86",
+                  "claimDigest": "1958d090a59a22ee09fbdd4397fab1eb0244fb3e1fc75b868f372d829d2d60b7",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-2bf1fd05b910d169aaa626df8c20946005d8aa51fcf134aa",
+                  "claimDigest": "2bf1fd05b910d169aaa626df8c20946005d8aa51fcf134aac29892d70cb83320",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -29698,8 +30318,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-94b64654ea63ba2eb84dc8a346206932bd65850d9950c566",
-      "semanticProfileDigest": "94b64654ea63ba2eb84dc8a346206932bd65850d9950c56618c77a342a075489"
+      "deterministicProfileId": "profile-160e9948ab5ecf32530c50aeaab3ae41486e17a30a9be072",
+      "semanticProfileDigest": "160e9948ab5ecf32530c50aeaab3ae41486e17a30a9be072ab6be447465cc113"
     },
     {
       "contractVersion": "2.0.0",
@@ -29910,12 +30530,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-63e895073cf3a05cee21f8d1a70e5dc2f1bc94e0"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-9aed0ff29627ddc90b04265fda5be90805caafd5aec314df",
+                  "claimDigest": "9aed0ff29627ddc90b04265fda5be90805caafd5aec314dfe72442d233384b0c",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-e3a88bc5d7fa2aec19bd43f1dea1d4fac8c6820619eff282",
+                  "claimDigest": "e3a88bc5d7fa2aec19bd43f1dea1d4fac8c6820619eff2829df0cfe45b61187f",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -30064,8 +30718,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-bfc5c1e1609366ad172c195e05e76e4c734575859206d499",
-      "semanticProfileDigest": "bfc5c1e1609366ad172c195e05e76e4c734575859206d4999b32d7d35ed8e114"
+      "deterministicProfileId": "profile-7841460934337934c92bb84860e90c6071e6d1b3bf571bd8",
+      "semanticProfileDigest": "7841460934337934c92bb84860e90c6071e6d1b3bf571bd8c07a58cda6926f82"
     },
     {
       "contractVersion": "2.0.0",
@@ -30276,12 +30930,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-bb0f097121f14ab1a77b06cbe8fc0606a8a2f2c7"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-e5ed112a837879917e7b64e18adcda2fb44990b3de777c98",
+                  "claimDigest": "e5ed112a837879917e7b64e18adcda2fb44990b3de777c9807d93b75cf345b2d",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-7ec61e3cc63fdf571b7a4926ed0f468f3fec0f6a1ddb40ba",
+                  "claimDigest": "7ec61e3cc63fdf571b7a4926ed0f468f3fec0f6a1ddb40ba7b3666ffb6145550",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -30430,8 +31118,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-ddb84d7b6b4cc4bec8fa10269709b84b4227c2dc3f9edbda",
-      "semanticProfileDigest": "ddb84d7b6b4cc4bec8fa10269709b84b4227c2dc3f9edbda0cfe907469faa1ff"
+      "deterministicProfileId": "profile-cfde3c458f071819ab88aaabf403ed779c882c69493e4897",
+      "semanticProfileDigest": "cfde3c458f071819ab88aaabf403ed779c882c69493e48973e5fde0c84a981fa"
     },
     {
       "contractVersion": "2.0.0",
@@ -30642,12 +31330,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-a29542b12b3cae3da945198d3d7c9c9120b7ab6d"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-4a3f0ef1f404626fd34648220f63df8eda6eb17ef7cfcf9d",
+                  "claimDigest": "4a3f0ef1f404626fd34648220f63df8eda6eb17ef7cfcf9d436bca6bc133b44f",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-4cf532cf741d854fe901d30519a60eb8baa92f727d1b8fbb",
+                  "claimDigest": "4cf532cf741d854fe901d30519a60eb8baa92f727d1b8fbb3bf9f300103d02d8",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -30796,8 +31518,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-118c3179488790e3d36b118896524d63aeb066396381efeb",
-      "semanticProfileDigest": "118c3179488790e3d36b118896524d63aeb066396381efeb58ab9d1381cb89ec"
+      "deterministicProfileId": "profile-7df88e3f1fbae42f7b47c4f2b01ba4ed072c5ef9657eb913",
+      "semanticProfileDigest": "7df88e3f1fbae42f7b47c4f2b01ba4ed072c5ef9657eb913fb72140de1a0407e"
     },
     {
       "contractVersion": "2.0.0",
@@ -31008,12 +31730,31 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-7cc725dd12df2a289e2e452685a5c6efbc1f5be8"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-4e1ffdec8b00ea962a5814378c75889e53de09e363f13688",
+                  "claimDigest": "4e1ffdec8b00ea962a5814378c75889e53de09e363f13688f7987e0453886d68",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -31162,8 +31903,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-cd1968dfdf960cddde8c0d5260b1a181019734b83134d53e",
-      "semanticProfileDigest": "cd1968dfdf960cddde8c0d5260b1a181019734b83134d53ea479c33fd7366c91"
+      "deterministicProfileId": "profile-c825165cb9c1614100b5d45ac7ff49b06a0644574bc36110",
+      "semanticProfileDigest": "c825165cb9c1614100b5d45ac7ff49b06a0644574bc3611087dc2199ece34df6"
     },
     {
       "contractVersion": "2.0.0",
@@ -31374,12 +32115,31 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-f7d4e43724b0816764f16cd617c27f9edb213eb2"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-33334daea9773fcfb1b9dfe2edc3792b1a95d8d9b7ce0b64",
+                  "claimDigest": "33334daea9773fcfb1b9dfe2edc3792b1a95d8d9b7ce0b64df21c7f0db86aecc",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -31528,8 +32288,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-05c1e523e5766b425e2f717f36ff4ad7229a0965feaefa78",
-      "semanticProfileDigest": "05c1e523e5766b425e2f717f36ff4ad7229a0965feaefa78a27c1900e2eacbe9"
+      "deterministicProfileId": "profile-1fa549f7a3473fa7691ccf14345df3132d625c47b23e5064",
+      "semanticProfileDigest": "1fa549f7a3473fa7691ccf14345df3132d625c47b23e5064c2f04a9bd950aec7"
     },
     {
       "contractVersion": "2.0.0",
@@ -32108,12 +32868,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-0d4dc995aad72e6bc369b70a6836b16fc59fc139"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-bf8d11385e5e2a7829249e168abe0639d17309109861b8a3",
+                  "claimDigest": "bf8d11385e5e2a7829249e168abe0639d17309109861b8a3f2e0cb4db5ea5be0",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-b83de9309fb273fa5456a0bf7ec6c6c085c92322bfd1669b",
+                  "claimDigest": "b83de9309fb273fa5456a0bf7ec6c6c085c92322bfd1669b7644902715508f8a",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -32262,8 +33056,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-efb23594d4ba53347f0c8d2296aa61453e41aaf6fe5c8e95",
-      "semanticProfileDigest": "efb23594d4ba53347f0c8d2296aa61453e41aaf6fe5c8e95cfab8472e28ee34e"
+      "deterministicProfileId": "profile-7e44b09fc6110719a936df6b8d948dde08051902de6dbb56",
+      "semanticProfileDigest": "7e44b09fc6110719a936df6b8d948dde08051902de6dbb56a2d19245116d42f2"
     },
     {
       "contractVersion": "2.0.0",
@@ -32475,12 +33269,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-d62dd0dc3042bf3ef7f5734269c0166b555b9acf"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-5cfea5dd7fa659a28aad4292883f0dfba0e670de9c7b4599",
+                  "claimDigest": "5cfea5dd7fa659a28aad4292883f0dfba0e670de9c7b4599de68636f19dbd92f",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-e1aff5e4a75a63afea082c4b2724331eb98b69dc4a340fd5",
+                  "claimDigest": "e1aff5e4a75a63afea082c4b2724331eb98b69dc4a340fd541e2fd664eca8891",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -32629,8 +33457,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-c700656ff182c55df30bcc4f92784c0b564b5e36150e4f08",
-      "semanticProfileDigest": "c700656ff182c55df30bcc4f92784c0b564b5e36150e4f080100e5640670a190"
+      "deterministicProfileId": "profile-bfda90a5d3fcd2fa01e0bec77b4cc49612729447277c82a7",
+      "semanticProfileDigest": "bfda90a5d3fcd2fa01e0bec77b4cc49612729447277c82a7bb2107534e3bd1bb"
     },
     {
       "contractVersion": "2.0.0",
@@ -32841,12 +33669,46 @@
         {
           "fieldId": "required-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-529e9606297ee0b41456a66222f31409d7bc7669"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-82c1c391bcc567110db8f42d9a5bc8c35d5b493fcbf5e1cd",
+                  "claimDigest": "82c1c391bcc567110db8f42d9a5bc8c35d5b493fcbf5e1cd786e59b7227cad56",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            },
+            {
+              "conceptId": "redis",
+              "state": "absent",
+              "valueExtractionRuleId": "extract-required-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
+                  "claimId": "reviewed-claim-0febc966c4c69f3d5e2ccaab02642f88ed5562becbe9bbba",
+                  "claimDigest": "0febc966c4c69f3d5e2ccaab02642f88ed5562becbe9bbba62fc50b4b9198684",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "optional-infrastructure",
@@ -32995,8 +33857,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-2b3c44704cedd9104da4c79d2438a8923936dd5a7d318e35",
-      "semanticProfileDigest": "2b3c44704cedd9104da4c79d2438a8923936dd5a7d318e35a8ecec04f6010b46"
+      "deterministicProfileId": "profile-fac7ca753dddcaaed5ed10d9ff0af82138bb7e80780aeca2",
+      "semanticProfileDigest": "fac7ca753dddcaaed5ed10d9ff0af82138bb7e80780aeca2a5f67b90bf2d5112"
     },
     {
       "contractVersion": "2.0.0",
@@ -33223,7 +34085,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-36759783567e5cc761f815a4255d2faf0541ef69f3778ef9",
                   "claimDigest": "36759783567e5cc761f815a4255d2faf0541ef69f3778ef91f8ead4e06e0a627",
                   "admissionId": null,
@@ -33238,7 +34100,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886",
                   "claimDigest": "bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886bf260beed96434be",
                   "admissionId": null,
@@ -33395,8 +34257,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-6ee6a11eba0a6fddd0435c1b656d05a3f589d35d67c20107",
-      "semanticProfileDigest": "6ee6a11eba0a6fddd0435c1b656d05a3f589d35d67c201079695e59e233abe70"
+      "deterministicProfileId": "profile-4df8746f7aba09a5f3ea27e0d70ab78139175f9d14b63d22",
+      "semanticProfileDigest": "4df8746f7aba09a5f3ea27e0d70ab78139175f9d14b63d2283f9a46e2141681f"
     },
     {
       "contractVersion": "2.0.0",
@@ -33624,7 +34486,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-d753669922ee4b2391718e9f978faf8216434d87ea19e46e",
                   "claimDigest": "d753669922ee4b2391718e9f978faf8216434d87ea19e46ecb30630e30a9fa70",
                   "admissionId": null,
@@ -33639,7 +34501,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec19",
                   "claimDigest": "efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec199dc10fd204b9842f",
                   "admissionId": null,
@@ -33796,8 +34658,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-f0a2165f282b7a8ac704a156b242638f2271ca18c4a197cf",
-      "semanticProfileDigest": "f0a2165f282b7a8ac704a156b242638f2271ca18c4a197cf1a30a32f8269e533"
+      "deterministicProfileId": "profile-5367862d74909284f61f8ba8219a942fd61848e8fdd55ca7",
+      "semanticProfileDigest": "5367862d74909284f61f8ba8219a942fd61848e8fdd55ca72a9540f2c93d895c"
     },
     {
       "contractVersion": "2.0.0",
@@ -34024,7 +34886,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60",
                   "claimDigest": "f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60af9ca75731af6661",
                   "admissionId": null,
@@ -34039,7 +34901,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-b206e11d484069d4e5a23368c8f62125bcb291e12983f21f",
                   "claimDigest": "b206e11d484069d4e5a23368c8f62125bcb291e12983f21fc359a308aeabf4bc",
                   "admissionId": null,
@@ -34196,8 +35058,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-a78c24dff68fddcf78bfe7a4e98a121d050bafede70da9ff",
-      "semanticProfileDigest": "a78c24dff68fddcf78bfe7a4e98a121d050bafede70da9ff4bec3f3b61b5d008"
+      "deterministicProfileId": "profile-e5ec359c52a6826d74740c9aaeee9473a4aad5b710713c75",
+      "semanticProfileDigest": "e5ec359c52a6826d74740c9aaeee9473a4aad5b710713c75791ff0e5ea852e7e"
     },
     {
       "contractVersion": "2.0.0",
@@ -34790,7 +35652,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa7",
                   "claimDigest": "3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa701959eba4e245166",
                   "admissionId": null,
@@ -34805,7 +35667,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-7a39cf660702ad20e9cb84cc140f4f20864af953b0405712",
                   "claimDigest": "7a39cf660702ad20e9cb84cc140f4f20864af953b0405712069fe1aa06c3e66b",
                   "admissionId": null,
@@ -34962,8 +35824,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-3f9d633b7e97a592ea8f21fadc75db36aaee3f559bed7f47",
-      "semanticProfileDigest": "3f9d633b7e97a592ea8f21fadc75db36aaee3f559bed7f4758c6692c0a4af8a6"
+      "deterministicProfileId": "profile-95867be0395b388d745b8f66d1a118aeaa6c4974364b5119",
+      "semanticProfileDigest": "95867be0395b388d745b8f66d1a118aeaa6c4974364b5119bbc671bee7626ca8"
     },
     {
       "contractVersion": "2.0.0",
@@ -35191,7 +36053,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c",
                   "claimDigest": "ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c997716a792d99c13",
                   "admissionId": null,
@@ -35206,7 +36068,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-94737a690766db0e4c01021ea87afde662cf2ef207ce5b8e",
                   "claimDigest": "94737a690766db0e4c01021ea87afde662cf2ef207ce5b8ee69261dbb63bb233",
                   "admissionId": null,
@@ -35363,8 +36225,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-2a96dc10541fffcef239521e8049995e6d4122bff3d95ee9",
-      "semanticProfileDigest": "2a96dc10541fffcef239521e8049995e6d4122bff3d95ee9823fb9a2b71a790f"
+      "deterministicProfileId": "profile-fee164c2bf8d57c7cd627f3865ec445c40ffc8680f2ca934",
+      "semanticProfileDigest": "fee164c2bf8d57c7cd627f3865ec445c40ffc8680f2ca9342132e6017fa7a167"
     },
     {
       "contractVersion": "2.0.0",
@@ -35592,7 +36454,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53b",
                   "claimDigest": "58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53be66384c8354129bf",
                   "admissionId": null,
@@ -35607,7 +36469,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-18ac615ca59ad35702841d147cdb25b815f8d0cd50138603",
                   "claimDigest": "18ac615ca59ad35702841d147cdb25b815f8d0cd50138603e615f2cb34ff9110",
                   "admissionId": null,
@@ -35636,7 +36498,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-8cbac6d9a7623e0d905ee669a88d696698bb4e4e09fe06d0",
                   "claimDigest": "8cbac6d9a7623e0d905ee669a88d696698bb4e4e09fe06d05de47291ed6b5985",
                   "admissionId": null,
@@ -35783,8 +36645,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-49be399e349232cffc5da2f49c974bf2937461edc8a80884",
-      "semanticProfileDigest": "49be399e349232cffc5da2f49c974bf2937461edc8a80884c00b3880913fea89"
+      "deterministicProfileId": "profile-feb8032589570a800f520bbb6eaa7744ce7ad1f1d02f6994",
+      "semanticProfileDigest": "feb8032589570a800f520bbb6eaa7744ce7ad1f1d02f6994e36b770b9e7ec005"
     },
     {
       "contractVersion": "2.0.0",
@@ -36011,7 +36873,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1",
                   "claimDigest": "64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1b31e9833009d8a8f",
                   "admissionId": null,
@@ -36026,7 +36888,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f009",
                   "claimDigest": "2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f00929514ba1330670eb",
                   "admissionId": null,
@@ -36183,8 +37045,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-7be00ccebc796c73d8fad5df8d3e80216eaceb4a70c29a7d",
-      "semanticProfileDigest": "7be00ccebc796c73d8fad5df8d3e80216eaceb4a70c29a7dff3e5b8e13a93a62"
+      "deterministicProfileId": "profile-6b89717817f203749d70943510fb8c6f3612c08e34448ddf",
+      "semanticProfileDigest": "6b89717817f203749d70943510fb8c6f3612c08e34448ddf753f8c9a19cfcd4c"
     },
     {
       "contractVersion": "2.0.0",
@@ -36777,7 +37639,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c",
                   "claimDigest": "c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c6456c5e529d80d18",
                   "admissionId": null,
@@ -36792,7 +37654,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1",
                   "claimDigest": "0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1ce124f27d5818142",
                   "admissionId": null,
@@ -36949,8 +37811,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-2f04c7737a09d809a80763dfa13cf9f750842939b6c88960",
-      "semanticProfileDigest": "2f04c7737a09d809a80763dfa13cf9f750842939b6c88960abca0f7bab64106d"
+      "deterministicProfileId": "profile-2227259e121a8e554534dce690c12973530c2f86c58578f1",
+      "semanticProfileDigest": "2227259e121a8e554534dce690c12973530c2f86c58578f1488962cb9275ecec"
     },
     {
       "contractVersion": "2.0.0",
@@ -37177,7 +38039,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-9e49560707870d2f9fc8879a4ea1db64d8f759548307de14",
                   "claimDigest": "9e49560707870d2f9fc8879a4ea1db64d8f759548307de1472a86f835da9638e",
                   "admissionId": null,
@@ -37334,8 +38196,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-545bdb59cec077e75d03b260df54607164624707295b47b4",
-      "semanticProfileDigest": "545bdb59cec077e75d03b260df54607164624707295b47b416dd0cbe4e24f4ca"
+      "deterministicProfileId": "profile-d8d33a48ecf8c5d5650792099add7ee969aced23321b874d",
+      "semanticProfileDigest": "d8d33a48ecf8c5d5650792099add7ee969aced23321b874d1a4194bd7d484259"
     },
     {
       "contractVersion": "2.0.0",
@@ -37928,7 +38790,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d75",
                   "claimDigest": "16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d751e359060ea359db1",
                   "admissionId": null,
@@ -37943,7 +38805,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73",
                   "claimDigest": "8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73b47a414862e4b62e",
                   "admissionId": null,
@@ -38100,8 +38962,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-0e93df1683b6c3540c16128dfa1a3a140a4dacd0764119f7",
-      "semanticProfileDigest": "0e93df1683b6c3540c16128dfa1a3a140a4dacd0764119f7c430dc9e27a34dcc"
+      "deterministicProfileId": "profile-29f0cb312543251a9b394c913257b8b2aeab6b0d43fd6ced",
+      "semanticProfileDigest": "29f0cb312543251a9b394c913257b8b2aeab6b0d43fd6ced09c8eb82c5556fbc"
     },
     {
       "contractVersion": "2.0.0",
@@ -38329,7 +39191,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-656ff8a8f33b0c16fa9e8b13925228e168c94689448663ef",
                   "claimDigest": "656ff8a8f33b0c16fa9e8b13925228e168c94689448663efdb7b8a0f25c032a5",
                   "admissionId": null,
@@ -38344,7 +39206,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-ff0efc065a69155880469ade54d5748be0148bde0140d467",
                   "claimDigest": "ff0efc065a69155880469ade54d5748be0148bde0140d467485bf36c6c6b1053",
                   "admissionId": null,
@@ -38501,8 +39363,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-4cf4d5ba8df95a363191ca05dda289ba1ee8cdbe0097029f",
-      "semanticProfileDigest": "4cf4d5ba8df95a363191ca05dda289ba1ee8cdbe0097029f310480f749d95060"
+      "deterministicProfileId": "profile-a99eedbfcb16410a123bf7b938ae14bc5409a5b8f3820478",
+      "semanticProfileDigest": "a99eedbfcb16410a123bf7b938ae14bc5409a5b8f3820478c53af61a52774df8"
     },
     {
       "contractVersion": "2.0.0",
@@ -38729,7 +39591,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae9",
                   "claimDigest": "f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae974eeb252de91d075",
                   "admissionId": null,
@@ -38758,7 +39620,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-5f3d56b84d338562ca8b812781f7259740b853af7bb39e6b",
                   "claimDigest": "5f3d56b84d338562ca8b812781f7259740b853af7bb39e6b38f5e2470c36b23a",
                   "admissionId": null,
@@ -38905,8 +39767,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-10aade2db64861591eda4e69ff76fcf55b2c42962413b134",
-      "semanticProfileDigest": "10aade2db64861591eda4e69ff76fcf55b2c42962413b13428957a0376ac52d0"
+      "deterministicProfileId": "profile-d063312409112e5d97be0dcf7b640589ec61ff54c3dbae28",
+      "semanticProfileDigest": "d063312409112e5d97be0dcf7b640589ec61ff54c3dbae283eadd32880fde36f"
     },
     {
       "contractVersion": "2.0.0",
@@ -39133,7 +39995,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eae",
                   "claimDigest": "f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eaeecababd8021539bc",
                   "admissionId": null,
@@ -39148,7 +40010,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f8",
                   "claimDigest": "21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f82e4a05bbc03bd5f7",
                   "admissionId": null,
@@ -39305,8 +40167,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-9afc0996b3abb25089162ec6628c580195eec21f2529ac6a",
-      "semanticProfileDigest": "9afc0996b3abb25089162ec6628c580195eec21f2529ac6aca90ff81ce6caa37"
+      "deterministicProfileId": "profile-9d3435bd3262891218ae9d1508b0f756fb70890f17f5a2a2",
+      "semanticProfileDigest": "9d3435bd3262891218ae9d1508b0f756fb70890f17f5a2a2b7d4e7198c389e6e"
     },
     {
       "contractVersion": "2.0.0",
@@ -39533,7 +40395,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360",
                   "claimDigest": "7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360bc5b25e066cf6229",
                   "admissionId": null,
@@ -39548,7 +40410,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a56",
                   "claimDigest": "1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a568656e62eec551aab",
                   "admissionId": null,
@@ -39577,7 +40439,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-c29dfb4d0075ed004346caaca974326977d855b89f1821ec",
                   "claimDigest": "c29dfb4d0075ed004346caaca974326977d855b89f1821ec8f69406f106cf307",
                   "admissionId": null,
@@ -39724,8 +40586,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-86e1f3bf4371de4fb6582fba64ec72d9ead95d886e59aafa",
-      "semanticProfileDigest": "86e1f3bf4371de4fb6582fba64ec72d9ead95d886e59aafaf6289f230360dd4e"
+      "deterministicProfileId": "profile-8492ced503eed8053f1746529062e7248dbe034dc7837686",
+      "semanticProfileDigest": "8492ced503eed8053f1746529062e7248dbe034dc783768634ef56cbc3cde965"
     },
     {
       "contractVersion": "2.0.0",
@@ -39953,7 +40815,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e80",
                   "claimDigest": "c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e8050c8fd192fccb045",
                   "admissionId": null,
@@ -39968,7 +40830,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e044",
                   "claimDigest": "3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e0441fb1c4ebfefab855",
                   "admissionId": null,
@@ -40125,8 +40987,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-258809b58149f2e0f0ac094fe687fa8e8a38c79ad208403a",
-      "semanticProfileDigest": "258809b58149f2e0f0ac094fe687fa8e8a38c79ad208403a5e3f6bb22c65a3fb"
+      "deterministicProfileId": "profile-706e921a77fcdfec5f8367c54d23628f8e7a33bf5e502d10",
+      "semanticProfileDigest": "706e921a77fcdfec5f8367c54d23628f8e7a33bf5e502d10f95ae5e68ea5f49a"
     },
     {
       "contractVersion": "2.0.0",
@@ -40353,7 +41215,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-391ef1e56676ca7505d4242a608e45b82db35982fa318fb0",
                   "claimDigest": "391ef1e56676ca7505d4242a608e45b82db35982fa318fb0aad94f24db3bb94d",
                   "admissionId": null,
@@ -40368,7 +41230,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f9105",
                   "claimDigest": "94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f910500382e0458f7196b",
                   "admissionId": null,
@@ -40525,8 +41387,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-2ab1991a6695068a25fd1fb3197d48cb1537541e6f10a86d",
-      "semanticProfileDigest": "2ab1991a6695068a25fd1fb3197d48cb1537541e6f10a86d8cc96b7fc7832f5a"
+      "deterministicProfileId": "profile-0cf942f55bc79cd5694a9c7f8dc213a19fea17fa0249dca2",
+      "semanticProfileDigest": "0cf942f55bc79cd5694a9c7f8dc213a19fea17fa0249dca2c10370385fe7fbda"
     },
     {
       "contractVersion": "2.0.0",
@@ -40754,7 +41616,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041",
                   "claimDigest": "39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041e5aa70092d3a68e8",
                   "admissionId": null,
@@ -40769,7 +41631,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af5",
                   "claimDigest": "96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af59bf939a30c457aaa",
                   "admissionId": null,
@@ -40798,7 +41660,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-3540d283fb9d9ad2e1bdfb59da25913add825cb59db44aae",
                   "claimDigest": "3540d283fb9d9ad2e1bdfb59da25913add825cb59db44aaeba75d2cbc24191b1",
                   "admissionId": null,
@@ -40945,8 +41807,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-271e817576bc9ba5e5ba0cafd5740ec267152b85aae65dba",
-      "semanticProfileDigest": "271e817576bc9ba5e5ba0cafd5740ec267152b85aae65dba977f8f2ff6973068"
+      "deterministicProfileId": "profile-c887664640a46bae4bb1b5a9e9d596ba9c7698b099e37cb8",
+      "semanticProfileDigest": "c887664640a46bae4bb1b5a9e9d596ba9c7698b099e37cb832d782b1b2d8984a"
     },
     {
       "contractVersion": "2.0.0",
@@ -41174,7 +42036,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90",
                   "claimDigest": "0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90352dbc7669cea3c4",
                   "admissionId": null,
@@ -41189,7 +42051,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a",
                   "claimDigest": "58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a0d59b4125c712cca",
                   "admissionId": null,
@@ -41346,8 +42208,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-5f421d57e7a586a6dde4933ed00c1f1731802fedcda7b0b8",
-      "semanticProfileDigest": "5f421d57e7a586a6dde4933ed00c1f1731802fedcda7b0b83fcd8ae38bbfe39d"
+      "deterministicProfileId": "profile-738983dac8695ce6bf4fb26e2579d99a8b0da5ab7373de39",
+      "semanticProfileDigest": "738983dac8695ce6bf4fb26e2579d99a8b0da5ab7373de3989621e95707d1a3a"
     },
     {
       "contractVersion": "2.0.0",
@@ -41940,7 +42802,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d1",
                   "claimDigest": "7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d13def3460acc6f936",
                   "admissionId": null,
@@ -41955,7 +42817,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f",
                   "claimDigest": "3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f76d6b59930d309c8",
                   "admissionId": null,
@@ -42112,8 +42974,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-1c27a9fef8ceb104fb980e23a23379d706df09cdc7f253e0",
-      "semanticProfileDigest": "1c27a9fef8ceb104fb980e23a23379d706df09cdc7f253e0a868c95ea6525c28"
+      "deterministicProfileId": "profile-54e9535448692d471a35f57789e5d41a18578d645bd8c3d4",
+      "semanticProfileDigest": "54e9535448692d471a35f57789e5d41a18578d645bd8c3d4d53dd46843f99f14"
     },
     {
       "contractVersion": "2.0.0",
@@ -42340,7 +43202,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-1a58e566424703606ab3da150c987ca89b692d8e02af7022",
                   "claimDigest": "1a58e566424703606ab3da150c987ca89b692d8e02af7022cb031de1884313b6",
                   "admissionId": null,
@@ -42355,7 +43217,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-786f5cd968fb96c34f6a08969cc992aec22cec0e77264295",
                   "claimDigest": "786f5cd968fb96c34f6a08969cc992aec22cec0e772642955cb8ffeebcbb36e1",
                   "admissionId": null,
@@ -42512,8 +43374,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-f5d6480d7923ebfa8f0b34873b993fdabd2606a2961630a0",
-      "semanticProfileDigest": "f5d6480d7923ebfa8f0b34873b993fdabd2606a2961630a0f2f216401d679df4"
+      "deterministicProfileId": "profile-9276fec54baf329d003833c95ca592c1dc51851ea1c25602",
+      "semanticProfileDigest": "9276fec54baf329d003833c95ca592c1dc51851ea1c256021de42cbbd84c5c78"
     },
     {
       "contractVersion": "2.0.0",
@@ -42740,7 +43602,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c5126",
                   "claimDigest": "a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c512649a2b22f5347e664",
                   "admissionId": null,
@@ -42755,7 +43617,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b3",
                   "claimDigest": "67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b33b7e029ca7740add",
                   "admissionId": null,
@@ -42912,8 +43774,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-27eb0e892fd77ea359c7f47675129b9b9857a53ad31b5dd9",
-      "semanticProfileDigest": "27eb0e892fd77ea359c7f47675129b9b9857a53ad31b5dd924ca189713d581e7"
+      "deterministicProfileId": "profile-e7604867235dc931711d0710681425cd484bc8cab728002f",
+      "semanticProfileDigest": "e7604867235dc931711d0710681425cd484bc8cab728002f8fb03dd4d572f109"
     },
     {
       "contractVersion": "2.0.0",
@@ -43506,7 +44368,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb18",
                   "claimDigest": "0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb189c095a470cbf3e1d",
                   "admissionId": null,
@@ -43663,8 +44525,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-2343d205f99010c06b15f0c954e4142308199b8e6ceab4a7",
-      "semanticProfileDigest": "2343d205f99010c06b15f0c954e4142308199b8e6ceab4a76f28b6d9d6ea3d24"
+      "deterministicProfileId": "profile-759d24ad90ea78b8496d9296c1eab3dba1a1e4521bc8b241",
+      "semanticProfileDigest": "759d24ad90ea78b8496d9296c1eab3dba1a1e4521bc8b241552740d7916fcdda"
     },
     {
       "contractVersion": "2.0.0",
@@ -43891,7 +44753,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620",
                   "claimDigest": "3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620055811895a679154",
                   "admissionId": null,
@@ -43906,7 +44768,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2",
                   "claimDigest": "4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2a528a707b10bc2ee",
                   "admissionId": null,
@@ -44063,8 +44925,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-7fe82e3268252b21a0a2b6633f557c4b242a79f9f6d17ada",
-      "semanticProfileDigest": "7fe82e3268252b21a0a2b6633f557c4b242a79f9f6d17adaaf3f8f0a581d3576"
+      "deterministicProfileId": "profile-a2655d7d283f189080f96733d13f2a54175914901a70688e",
+      "semanticProfileDigest": "a2655d7d283f189080f96733d13f2a54175914901a70688e0a07cec4c9e7dc5c"
     },
     {
       "contractVersion": "2.0.0",
@@ -44291,7 +45153,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-e266e75b625043ab339ea2fd030ea8404364b559c98d1313",
                   "claimDigest": "e266e75b625043ab339ea2fd030ea8404364b559c98d1313cd49c8fb3a7481a6",
                   "admissionId": null,
@@ -44306,7 +45168,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b",
                   "claimDigest": "14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b5b3acc20f6f4f2a0",
                   "admissionId": null,
@@ -44463,8 +45325,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-0922551a42892969917ab97351d8bc4e66e22edb12b3ee2e",
-      "semanticProfileDigest": "0922551a42892969917ab97351d8bc4e66e22edb12b3ee2e53ceec4215f39fe2"
+      "deterministicProfileId": "profile-aa16f0fcdc61627d63485cfe61b13c727585f4a9ec33f34c",
+      "semanticProfileDigest": "aa16f0fcdc61627d63485cfe61b13c727585f4a9ec33f34cbd7c0dd6ce33939d"
     },
     {
       "contractVersion": "2.0.0",
@@ -44692,7 +45554,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033e",
                   "claimDigest": "438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033ea51df02469c157e9",
                   "admissionId": null,
@@ -44707,7 +45569,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "curationAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9",
                   "claimId": "reviewed-claim-466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876",
                   "claimDigest": "466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876e6c8fdae226f090d",
                   "admissionId": null,
@@ -44864,8 +45726,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-61b3f9635a8533af65037c7425d125701d123288d1a25263",
-      "semanticProfileDigest": "61b3f9635a8533af65037c7425d125701d123288d1a25263138b22de7b718ec6"
+      "deterministicProfileId": "profile-0c3bb2b1050a1eb3ca072ba5e6e47dce5df8b1f6b59ce923",
+      "semanticProfileDigest": "0c3bb2b1050a1eb3ca072ba5e6e47dce5df8b1f6b59ce9233a001d61249685df"
     },
     {
       "contractVersion": "2.0.0",
@@ -55870,5 +56732,5 @@
       "semanticProfileDigest": "51ad8ff1e96acdf501ef403d927412edf7d36a2cc14d7e4baebcba31a7f29983"
     }
   ],
-  "semanticAuthorityDigest": "b76a50383bcbecd581cc2919cc8f62aabee55a8a3150d681b89748853fdad912"
+  "semanticAuthorityDigest": "06f5dd9427e7aeb8c6b2f0a1adabf816caa1ac5ff3b7c710151657ae8918e730"
 }

@@ -8,6 +8,2162 @@
   "claims": [
     {
       "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-68f67ad3142addf089e5ba5fe842fbc17fbe3233b10caade",
+      "claimDigest": "68f67ad3142addf089e5ba5fe842fbc17fbe3233b10caadedcb327e646a4b6a4",
+      "candidateId": "jobs-actionhero-node-resque",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-50ccc982c9e0cf505683a34293af011e11f8722f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-actionhero-node-resque",
+          "artifactSetId": "artifact-set-f57f434a665f29bb0008df9ec19fc609b326d316190a1033",
+          "artifactSetIdentityDigest": "f57f434a665f29bb0008df9ec19fc609b326d316190a10331a1285531468075e",
+          "artifactSetRecordDigest": "9ac29de7e6986561da2fed9571936bd718d0616f2e6f0f2a1361d865653c0e8a",
+          "artifactId": "artifact-c78f5053af65325b32f92deb78225da3b05344ea8d1863a6",
+          "artifactIdentityDigest": "c78f5053af65325b32f92deb78225da3b05344ea8d1863a65a2cfb0430b92d91",
+          "artifactRecordDigest": "239d7f15c47007a2159f60c4eedbd8326200b63507cfac2c25486fcc9602694c",
+          "contentSha256": "34265979c39c520978074e6fa6f6bcd991fb7f0f5f593074e8b560a0ddd8b455",
+          "startLine": 3,
+          "endLine": 3,
+          "excerptSha256": "bc4035ce44ed08ed7c458f80c94bc9cc05dc8886ef64005c6a06f69a1abc8234"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-actionhero-node-resque",
+          "artifactSetId": "artifact-set-f57f434a665f29bb0008df9ec19fc609b326d316190a1033",
+          "artifactSetIdentityDigest": "f57f434a665f29bb0008df9ec19fc609b326d316190a10331a1285531468075e",
+          "artifactSetRecordDigest": "9ac29de7e6986561da2fed9571936bd718d0616f2e6f0f2a1361d865653c0e8a",
+          "artifactId": "artifact-c78f5053af65325b32f92deb78225da3b05344ea8d1863a6",
+          "artifactIdentityDigest": "c78f5053af65325b32f92deb78225da3b05344ea8d1863a65a2cfb0430b92d91",
+          "artifactRecordDigest": "239d7f15c47007a2159f60c4eedbd8326200b63507cfac2c25486fcc9602694c",
+          "contentSha256": "34265979c39c520978074e6fa6f6bcd991fb7f0f5f593074e8b560a0ddd8b455",
+          "startLine": 43,
+          "endLine": 56,
+          "excerptSha256": "7fba7d7bbb38973b02502bc845112892f2466060fab5ef171dbceffbbc82ce13"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-6289e85466803725c0f3e34b456ad81b4810110d90cb2178",
+      "claimDigest": "6289e85466803725c0f3e34b456ad81b4810110d90cb21788f46819a6ee2f808",
+      "candidateId": "jobs-actionhero-node-resque",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-50ccc982c9e0cf505683a34293af011e11f8722f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-actionhero-node-resque",
+          "artifactSetId": "artifact-set-f57f434a665f29bb0008df9ec19fc609b326d316190a1033",
+          "artifactSetIdentityDigest": "f57f434a665f29bb0008df9ec19fc609b326d316190a10331a1285531468075e",
+          "artifactSetRecordDigest": "9ac29de7e6986561da2fed9571936bd718d0616f2e6f0f2a1361d865653c0e8a",
+          "artifactId": "artifact-c78f5053af65325b32f92deb78225da3b05344ea8d1863a6",
+          "artifactIdentityDigest": "c78f5053af65325b32f92deb78225da3b05344ea8d1863a65a2cfb0430b92d91",
+          "artifactRecordDigest": "239d7f15c47007a2159f60c4eedbd8326200b63507cfac2c25486fcc9602694c",
+          "contentSha256": "34265979c39c520978074e6fa6f6bcd991fb7f0f5f593074e8b560a0ddd8b455",
+          "startLine": 3,
+          "endLine": 3,
+          "excerptSha256": "bc4035ce44ed08ed7c458f80c94bc9cc05dc8886ef64005c6a06f69a1abc8234"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-actionhero-node-resque",
+          "artifactSetId": "artifact-set-f57f434a665f29bb0008df9ec19fc609b326d316190a1033",
+          "artifactSetIdentityDigest": "f57f434a665f29bb0008df9ec19fc609b326d316190a10331a1285531468075e",
+          "artifactSetRecordDigest": "9ac29de7e6986561da2fed9571936bd718d0616f2e6f0f2a1361d865653c0e8a",
+          "artifactId": "artifact-c78f5053af65325b32f92deb78225da3b05344ea8d1863a6",
+          "artifactIdentityDigest": "c78f5053af65325b32f92deb78225da3b05344ea8d1863a65a2cfb0430b92d91",
+          "artifactRecordDigest": "239d7f15c47007a2159f60c4eedbd8326200b63507cfac2c25486fcc9602694c",
+          "contentSha256": "34265979c39c520978074e6fa6f6bcd991fb7f0f5f593074e8b560a0ddd8b455",
+          "startLine": 35,
+          "endLine": 35,
+          "excerptSha256": "01d2b615948221edc0f3af354d82e9536a431e84e38eae511002ef92fdf4888b"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-2a0a80c6df2d5abe6efdcc560a9989ecb984b3738d8a7717",
+      "claimDigest": "2a0a80c6df2d5abe6efdcc560a9989ecb984b3738d8a7717b701943dca571ff3",
+      "candidateId": "jobs-agenda",
+      "fieldId": "optional-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c5e89738b243326ceb8a27f8901b5dcc81390bda"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-agenda",
+          "artifactSetId": "artifact-set-02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b",
+          "artifactSetIdentityDigest": "02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b94745b7022868e16",
+          "artifactSetRecordDigest": "f1de9b7f994c6c675d740566cf96a1779bc716c3913c8deba3a92adde5924d51",
+          "artifactId": "artifact-8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd",
+          "artifactIdentityDigest": "8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd84d0cb5b4d8bfd27",
+          "artifactRecordDigest": "c0c3e4fad1dcc5f1a41dee8bda475f3c263d6c9dbd74b026f5c85ce201b73503",
+          "contentSha256": "e6cae83471bfd2d4e4cf001f5d1d38912a1ae6d487f45ac175eea4adc0c504ae",
+          "startLine": 289,
+          "endLine": 305,
+          "excerptSha256": "24303a7961132156110c6b0e464817d0ff4b298863abbc3f2fd1c71389220510"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-14847b015fb737983dbb94d25d7bfaf09a974734c3f593bf",
+      "claimDigest": "14847b015fb737983dbb94d25d7bfaf09a974734c3f593bf38d31fdfc618db67",
+      "candidateId": "jobs-agenda",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c5e89738b243326ceb8a27f8901b5dcc81390bda"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-agenda",
+          "artifactSetId": "artifact-set-02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b",
+          "artifactSetIdentityDigest": "02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b94745b7022868e16",
+          "artifactSetRecordDigest": "f1de9b7f994c6c675d740566cf96a1779bc716c3913c8deba3a92adde5924d51",
+          "artifactId": "artifact-8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd",
+          "artifactIdentityDigest": "8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd84d0cb5b4d8bfd27",
+          "artifactRecordDigest": "c0c3e4fad1dcc5f1a41dee8bda475f3c263d6c9dbd74b026f5c85ce201b73503",
+          "contentSha256": "e6cae83471bfd2d4e4cf001f5d1d38912a1ae6d487f45ac175eea4adc0c504ae",
+          "startLine": 25,
+          "endLine": 26,
+          "excerptSha256": "5115b7b5a2b9b717c22ea0fbe27c07f22e2a685f3fabc8a0df5baa466fcedbe2"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-agenda",
+          "artifactSetId": "artifact-set-02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b",
+          "artifactSetIdentityDigest": "02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b94745b7022868e16",
+          "artifactSetRecordDigest": "f1de9b7f994c6c675d740566cf96a1779bc716c3913c8deba3a92adde5924d51",
+          "artifactId": "artifact-8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd",
+          "artifactIdentityDigest": "8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd84d0cb5b4d8bfd27",
+          "artifactRecordDigest": "c0c3e4fad1dcc5f1a41dee8bda475f3c263d6c9dbd74b026f5c85ce201b73503",
+          "contentSha256": "e6cae83471bfd2d4e4cf001f5d1d38912a1ae6d487f45ac175eea4adc0c504ae",
+          "startLine": 86,
+          "endLine": 110,
+          "excerptSha256": "50438548e1daf93132052939c9e8ce65a62c2b86004a52c2c1b99bca8513e435"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-b84962f3a86b987945e0c42267b971ef8c468cf09af54675",
+      "claimDigest": "b84962f3a86b987945e0c42267b971ef8c468cf09af54675000aa89405b7588d",
+      "candidateId": "jobs-agenda",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c5e89738b243326ceb8a27f8901b5dcc81390bda"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-agenda",
+          "artifactSetId": "artifact-set-02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b",
+          "artifactSetIdentityDigest": "02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b94745b7022868e16",
+          "artifactSetRecordDigest": "f1de9b7f994c6c675d740566cf96a1779bc716c3913c8deba3a92adde5924d51",
+          "artifactId": "artifact-8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd",
+          "artifactIdentityDigest": "8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd84d0cb5b4d8bfd27",
+          "artifactRecordDigest": "c0c3e4fad1dcc5f1a41dee8bda475f3c263d6c9dbd74b026f5c85ce201b73503",
+          "contentSha256": "e6cae83471bfd2d4e4cf001f5d1d38912a1ae6d487f45ac175eea4adc0c504ae",
+          "startLine": 25,
+          "endLine": 26,
+          "excerptSha256": "5115b7b5a2b9b717c22ea0fbe27c07f22e2a685f3fabc8a0df5baa466fcedbe2"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-agenda",
+          "artifactSetId": "artifact-set-02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b",
+          "artifactSetIdentityDigest": "02ad3b1c97c3c080c8c3653e320f6dee61ac590ec124e19b94745b7022868e16",
+          "artifactSetRecordDigest": "f1de9b7f994c6c675d740566cf96a1779bc716c3913c8deba3a92adde5924d51",
+          "artifactId": "artifact-8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd",
+          "artifactIdentityDigest": "8e7fb3697b243d014b69e6377f9e8a070be39c33e5ec9bdd84d0cb5b4d8bfd27",
+          "artifactRecordDigest": "c0c3e4fad1dcc5f1a41dee8bda475f3c263d6c9dbd74b026f5c85ce201b73503",
+          "contentSha256": "e6cae83471bfd2d4e4cf001f5d1d38912a1ae6d487f45ac175eea4adc0c504ae",
+          "startLine": 86,
+          "endLine": 110,
+          "excerptSha256": "50438548e1daf93132052939c9e8ce65a62c2b86004a52c2c1b99bca8513e435"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-26980b76f69099c41aa378cf371b0426ebcf595d4beebd3a",
+      "claimDigest": "26980b76f69099c41aa378cf371b0426ebcf595d4beebd3aaf921704c87b4aa3",
+      "candidateId": "jobs-airflow",
+      "fieldId": "optional-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-566e9f3c27e58b3890a721b1f1ab534d0df1e547"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-airflow",
+          "artifactSetId": "artifact-set-7e2306172d3096ecd10ba2ca85b9a95fe7370052456b7536",
+          "artifactSetIdentityDigest": "7e2306172d3096ecd10ba2ca85b9a95fe7370052456b75367722d5dba8eed0c4",
+          "artifactSetRecordDigest": "584b874ee6a9616ed16216475b880eba0ed1b343505f4f1783c7be8b49713aec",
+          "artifactId": "artifact-6d70c9a71c5123d338985cd184d09200314aa49fb21aa4f8",
+          "artifactIdentityDigest": "6d70c9a71c5123d338985cd184d09200314aa49fb21aa4f827cd7ffec669c677",
+          "artifactRecordDigest": "357d8b6fb806a1fc5e2342b5014407db789e5dfe66f3b10efdfc0fdcc0fabe7b",
+          "contentSha256": "fd35aad7626cfbb53fdca1e1184abe89689eb2d080d477f4ee68b6ec3ea8756e",
+          "startLine": 100,
+          "endLine": 118,
+          "excerptSha256": "394a2a31f8babe700416714acc9a32b6c928e5cb7e2a4aa36973e305d1e33f9c"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-airflow",
+          "artifactSetId": "artifact-set-7e2306172d3096ecd10ba2ca85b9a95fe7370052456b7536",
+          "artifactSetIdentityDigest": "7e2306172d3096ecd10ba2ca85b9a95fe7370052456b75367722d5dba8eed0c4",
+          "artifactSetRecordDigest": "584b874ee6a9616ed16216475b880eba0ed1b343505f4f1783c7be8b49713aec",
+          "artifactId": "artifact-6d70c9a71c5123d338985cd184d09200314aa49fb21aa4f8",
+          "artifactIdentityDigest": "6d70c9a71c5123d338985cd184d09200314aa49fb21aa4f827cd7ffec669c677",
+          "artifactRecordDigest": "357d8b6fb806a1fc5e2342b5014407db789e5dfe66f3b10efdfc0fdcc0fabe7b",
+          "contentSha256": "fd35aad7626cfbb53fdca1e1184abe89689eb2d080d477f4ee68b6ec3ea8756e",
+          "startLine": 181,
+          "endLine": 186,
+          "excerptSha256": "5406dafb496618b9845e6a8f447179b5a0168f3b27801684ba0bbd295be9baed"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-de101af537fb6cf90e0ec80ba7492767281c9407c9dd5d37",
+      "claimDigest": "de101af537fb6cf90e0ec80ba7492767281c9407c9dd5d370edd2cce6c2eafcd",
+      "candidateId": "jobs-asynq",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-d135f1439bee74e989b7f9b41ecd542cc87f024a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-asynq",
+          "artifactSetId": "artifact-set-43c49ff9858a07a8c75956adaf419191de036d3f5e67be79",
+          "artifactSetIdentityDigest": "43c49ff9858a07a8c75956adaf419191de036d3f5e67be791ac52f4c30498e9b",
+          "artifactSetRecordDigest": "eaf2a3540ee3ef3f5069a13df57030b1092401e2e39923d8567c26895b271e2e",
+          "artifactId": "artifact-6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b67",
+          "artifactIdentityDigest": "6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b674de7eca321fdee41",
+          "artifactRecordDigest": "01b53e49d250b5fd61d3f50e19d3ddc08800d44d0eda3fe58fcdaaf3787f4440",
+          "contentSha256": "99e8432a28e36e2bc15e714491767813a1e2fe81d734f80dd15952921c05285a",
+          "startLine": 58,
+          "endLine": 67,
+          "excerptSha256": "83eeb1afd1368582624b87847dc05a31dec2541614ab327a07eeee0a0f261209"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-asynq",
+          "artifactSetId": "artifact-set-43c49ff9858a07a8c75956adaf419191de036d3f5e67be79",
+          "artifactSetIdentityDigest": "43c49ff9858a07a8c75956adaf419191de036d3f5e67be791ac52f4c30498e9b",
+          "artifactSetRecordDigest": "eaf2a3540ee3ef3f5069a13df57030b1092401e2e39923d8567c26895b271e2e",
+          "artifactId": "artifact-6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b67",
+          "artifactIdentityDigest": "6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b674de7eca321fdee41",
+          "artifactRecordDigest": "01b53e49d250b5fd61d3f50e19d3ddc08800d44d0eda3fe58fcdaaf3787f4440",
+          "contentSha256": "99e8432a28e36e2bc15e714491767813a1e2fe81d734f80dd15952921c05285a",
+          "startLine": 158,
+          "endLine": 175,
+          "excerptSha256": "0973afb5241b907178cfefc57e17369f2d83051d01ecf4d25abe437c800973be"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-5b6d9face6046e66447207cba38fce9ea6180e8258fba217",
+      "claimDigest": "5b6d9face6046e66447207cba38fce9ea6180e8258fba2176f92f51486356ba6",
+      "candidateId": "jobs-asynq",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-d135f1439bee74e989b7f9b41ecd542cc87f024a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-asynq",
+          "artifactSetId": "artifact-set-43c49ff9858a07a8c75956adaf419191de036d3f5e67be79",
+          "artifactSetIdentityDigest": "43c49ff9858a07a8c75956adaf419191de036d3f5e67be791ac52f4c30498e9b",
+          "artifactSetRecordDigest": "eaf2a3540ee3ef3f5069a13df57030b1092401e2e39923d8567c26895b271e2e",
+          "artifactId": "artifact-6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b67",
+          "artifactIdentityDigest": "6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b674de7eca321fdee41",
+          "artifactRecordDigest": "01b53e49d250b5fd61d3f50e19d3ddc08800d44d0eda3fe58fcdaaf3787f4440",
+          "contentSha256": "99e8432a28e36e2bc15e714491767813a1e2fe81d734f80dd15952921c05285a",
+          "startLine": 11,
+          "endLine": 11,
+          "excerptSha256": "7a15fde71c16d7597f716c56fe28c7c5fb638570d251c2d24e2e8ccf54ce4a0a"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-asynq",
+          "artifactSetId": "artifact-set-43c49ff9858a07a8c75956adaf419191de036d3f5e67be79",
+          "artifactSetIdentityDigest": "43c49ff9858a07a8c75956adaf419191de036d3f5e67be791ac52f4c30498e9b",
+          "artifactSetRecordDigest": "eaf2a3540ee3ef3f5069a13df57030b1092401e2e39923d8567c26895b271e2e",
+          "artifactId": "artifact-6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b67",
+          "artifactIdentityDigest": "6905fe857951d89b7fce0b1436301363fc0f5590f1cd2b674de7eca321fdee41",
+          "artifactRecordDigest": "01b53e49d250b5fd61d3f50e19d3ddc08800d44d0eda3fe58fcdaaf3787f4440",
+          "contentSha256": "99e8432a28e36e2bc15e714491767813a1e2fe81d734f80dd15952921c05285a",
+          "startLine": 58,
+          "endLine": 67,
+          "excerptSha256": "83eeb1afd1368582624b87847dc05a31dec2541614ab327a07eeee0a0f261209"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-726e4b3cea3a44fc17d0ab45ecf8ad0c6632ebab8ad88bcd",
+      "claimDigest": "726e4b3cea3a44fc17d0ab45ecf8ad0c6632ebab8ad88bcdf5716d2bf1a1e3d0",
+      "candidateId": "jobs-bee-queue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-cabb58213171f6c9aebc4ec5a74339c2fe4b2c4c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bee-queue",
+          "artifactSetId": "artifact-set-67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb",
+          "artifactSetIdentityDigest": "67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb42a91f269d169373",
+          "artifactSetRecordDigest": "6e114d7fb0137be38e79903eff703fd130ec8f64fdf7548b0e76c7a745548899",
+          "artifactId": "artifact-321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c12271",
+          "artifactIdentityDigest": "321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c122718abef9c8794aa04b",
+          "artifactRecordDigest": "d22aaac50e2e697354787aea637c52510ac9b219e2e637c57bf565b53d999611",
+          "contentSha256": "b2c104460a7d71ab77b02cc83b8e982b9a0bf158dfa0e225d95adbbbde28a5f4",
+          "startLine": 5,
+          "endLine": 26,
+          "excerptSha256": "6669005d91ff1a3809a4fc6660100ea57d303b4f7da8f6636197c87840a163af"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bee-queue",
+          "artifactSetId": "artifact-set-67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb",
+          "artifactSetIdentityDigest": "67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb42a91f269d169373",
+          "artifactSetRecordDigest": "6e114d7fb0137be38e79903eff703fd130ec8f64fdf7548b0e76c7a745548899",
+          "artifactId": "artifact-321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c12271",
+          "artifactIdentityDigest": "321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c122718abef9c8794aa04b",
+          "artifactRecordDigest": "d22aaac50e2e697354787aea637c52510ac9b219e2e637c57bf565b53d999611",
+          "contentSha256": "b2c104460a7d71ab77b02cc83b8e982b9a0bf158dfa0e225d95adbbbde28a5f4",
+          "startLine": 53,
+          "endLine": 61,
+          "excerptSha256": "1530f4113d153617ad6bcc469b7f5fea2ed871ea68b37c25ac601a7dfaefaf27"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-62f3c83d31ec499a5d857138d3cc66a3d1573e92b47f47a8",
+      "claimDigest": "62f3c83d31ec499a5d857138d3cc66a3d1573e92b47f47a8c90dbd4bce293dc4",
+      "candidateId": "jobs-bee-queue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-cabb58213171f6c9aebc4ec5a74339c2fe4b2c4c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bee-queue",
+          "artifactSetId": "artifact-set-67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb",
+          "artifactSetIdentityDigest": "67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb42a91f269d169373",
+          "artifactSetRecordDigest": "6e114d7fb0137be38e79903eff703fd130ec8f64fdf7548b0e76c7a745548899",
+          "artifactId": "artifact-321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c12271",
+          "artifactIdentityDigest": "321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c122718abef9c8794aa04b",
+          "artifactRecordDigest": "d22aaac50e2e697354787aea637c52510ac9b219e2e637c57bf565b53d999611",
+          "contentSha256": "b2c104460a7d71ab77b02cc83b8e982b9a0bf158dfa0e225d95adbbbde28a5f4",
+          "startLine": 5,
+          "endLine": 5,
+          "excerptSha256": "ccbab5cd0961ba747d54dfe22356c7aa3ea0c524f89273c16fafee6887f6df62"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bee-queue",
+          "artifactSetId": "artifact-set-67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb",
+          "artifactSetIdentityDigest": "67073f8bc7b5d688270d40dd266a256f7831521d7a63b7eb42a91f269d169373",
+          "artifactSetRecordDigest": "6e114d7fb0137be38e79903eff703fd130ec8f64fdf7548b0e76c7a745548899",
+          "artifactId": "artifact-321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c12271",
+          "artifactIdentityDigest": "321cdd7e4c77b41778b1ba03f9f68cb277e6eff7c5c122718abef9c8794aa04b",
+          "artifactRecordDigest": "d22aaac50e2e697354787aea637c52510ac9b219e2e637c57bf565b53d999611",
+          "contentSha256": "b2c104460a7d71ab77b02cc83b8e982b9a0bf158dfa0e225d95adbbbde28a5f4",
+          "startLine": 53,
+          "endLine": 61,
+          "excerptSha256": "1530f4113d153617ad6bcc469b7f5fea2ed871ea68b37c25ac601a7dfaefaf27"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-3322c4c298e6038e4a050c1e1b82b98ebd2fcd15ae86fc34",
+      "claimDigest": "3322c4c298e6038e4a050c1e1b82b98ebd2fcd15ae86fc3432a3e5e90eed66d5",
+      "candidateId": "jobs-bree",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-465a5e2f452048c99790229ba813bed795b9f366"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bree",
+          "artifactSetId": "artifact-set-cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2",
+          "artifactSetIdentityDigest": "cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2126ec6277f7db1c5",
+          "artifactSetRecordDigest": "8fee5dbae26b059c0e427045a636281c154dbab84754d8149514686ee8e0e5df",
+          "artifactId": "artifact-0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb",
+          "artifactIdentityDigest": "0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb49927771137ea120",
+          "artifactRecordDigest": "028bfa2d370b0e80ee396f3c2dce5ba96d14c8ef10ceb23a0042f802eabc743b",
+          "contentSha256": "bdb20ec2a6f6d5a1bcbd95435007d0257ded9917bbd20bd9cb2d81875b468ea2",
+          "startLine": 88,
+          "endLine": 110,
+          "excerptSha256": "044917448c945ecf2a55bdda5b8dfdfad5da5bb1c2051a65a01b3c075622ae95"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-38b957464f67b3438e7d224102d1ae91f95866cd00495ca4",
+      "claimDigest": "38b957464f67b3438e7d224102d1ae91f95866cd00495ca443a9e65f63ac3c52",
+      "candidateId": "jobs-bree",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-465a5e2f452048c99790229ba813bed795b9f366"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bree",
+          "artifactSetId": "artifact-set-cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2",
+          "artifactSetIdentityDigest": "cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2126ec6277f7db1c5",
+          "artifactSetRecordDigest": "8fee5dbae26b059c0e427045a636281c154dbab84754d8149514686ee8e0e5df",
+          "artifactId": "artifact-0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb",
+          "artifactIdentityDigest": "0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb49927771137ea120",
+          "artifactRecordDigest": "028bfa2d370b0e80ee396f3c2dce5ba96d14c8ef10ceb23a0042f802eabc743b",
+          "contentSha256": "bdb20ec2a6f6d5a1bcbd95435007d0257ded9917bbd20bd9cb2d81875b468ea2",
+          "startLine": 55,
+          "endLine": 61,
+          "excerptSha256": "19af3c32cdf6f7d38f26947837910a960251f7bb4534be2082a8c25e0544379d"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bree",
+          "artifactSetId": "artifact-set-cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2",
+          "artifactSetIdentityDigest": "cda2d31341bbf61f5b4377fe91ceba01aba00f0688bad8d2126ec6277f7db1c5",
+          "artifactSetRecordDigest": "8fee5dbae26b059c0e427045a636281c154dbab84754d8149514686ee8e0e5df",
+          "artifactId": "artifact-0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb",
+          "artifactIdentityDigest": "0553d6bb020c4b78b9f6e8907b23d97a1366b1f0c072addb49927771137ea120",
+          "artifactRecordDigest": "028bfa2d370b0e80ee396f3c2dce5ba96d14c8ef10ceb23a0042f802eabc743b",
+          "contentSha256": "bdb20ec2a6f6d5a1bcbd95435007d0257ded9917bbd20bd9cb2d81875b468ea2",
+          "startLine": 88,
+          "endLine": 110,
+          "excerptSha256": "044917448c945ecf2a55bdda5b8dfdfad5da5bb1c2051a65a01b3c075622ae95"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-8f8e172184fb73174a4abcee26daaa29726b802480b588c5",
+      "claimDigest": "8f8e172184fb73174a4abcee26daaa29726b802480b588c50559ae7fe9dae670",
+      "candidateId": "jobs-bull",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-73d065506931fc876c67c721bc424b2bd76b520b"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bull",
+          "artifactSetId": "artifact-set-f6dd0ff12d57b9918893d924e1f94383652305a395454cc2",
+          "artifactSetIdentityDigest": "f6dd0ff12d57b9918893d924e1f94383652305a395454cc23dec63f4eab13e50",
+          "artifactSetRecordDigest": "cf289807aebda0940cb029e87f586f8d52b72cfcbc4de6f698c8c6efa6ee86f5",
+          "artifactId": "artifact-14c31ac41d8a9992f879b57fa4760a59561577a3fff16447",
+          "artifactIdentityDigest": "14c31ac41d8a9992f879b57fa4760a59561577a3fff16447caa0bd951466ffb2",
+          "artifactRecordDigest": "3bce2df00cd29ec7cbfd47ad28b86e50427882e71908d299ec9807734d4d5bd1",
+          "contentSha256": "2416092f6b415a5595d0f866df985c3488e5b21f8122cadfcf939de3287a9e57",
+          "startLine": 225,
+          "endLine": 264,
+          "excerptSha256": "3eb1dcbac26bda1461d73d06c64dda2906851ac5195c571fbbfa00c3532a59f7"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-cc2c428be52af608a0978a8e494482e73293215a340d6ec5",
+      "claimDigest": "cc2c428be52af608a0978a8e494482e73293215a340d6ec570592b2a75377fba",
+      "candidateId": "jobs-bull",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-73d065506931fc876c67c721bc424b2bd76b520b"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bull",
+          "artifactSetId": "artifact-set-f6dd0ff12d57b9918893d924e1f94383652305a395454cc2",
+          "artifactSetIdentityDigest": "f6dd0ff12d57b9918893d924e1f94383652305a395454cc23dec63f4eab13e50",
+          "artifactSetRecordDigest": "cf289807aebda0940cb029e87f586f8d52b72cfcbc4de6f698c8c6efa6ee86f5",
+          "artifactId": "artifact-14c31ac41d8a9992f879b57fa4760a59561577a3fff16447",
+          "artifactIdentityDigest": "14c31ac41d8a9992f879b57fa4760a59561577a3fff16447caa0bd951466ffb2",
+          "artifactRecordDigest": "3bce2df00cd29ec7cbfd47ad28b86e50427882e71908d299ec9807734d4d5bd1",
+          "contentSha256": "2416092f6b415a5595d0f866df985c3488e5b21f8122cadfcf939de3287a9e57",
+          "startLine": 225,
+          "endLine": 264,
+          "excerptSha256": "3eb1dcbac26bda1461d73d06c64dda2906851ac5195c571fbbfa00c3532a59f7"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-dd035c3116843992d414b56220b184943549a6d52963248a",
+      "claimDigest": "dd035c3116843992d414b56220b184943549a6d52963248acbaa55cc1e3ba012",
+      "candidateId": "jobs-bullmq",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-12f6bcc954167a3ec67ef2ac229b4ea8319f7a20"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bullmq",
+          "artifactSetId": "artifact-set-6a99084fa5baf07af91b1e57a0547b8c19f2d7722fb48e5a",
+          "artifactSetIdentityDigest": "6a99084fa5baf07af91b1e57a0547b8c19f2d7722fb48e5a6425161d8a6270e7",
+          "artifactSetRecordDigest": "7987566516015e2e9879f65675e5fe987a83bcf9643a6d557f865d7aef0dee87",
+          "artifactId": "artifact-1725958b9c489029976a556b545ff778cbb781e2df5f1006",
+          "artifactIdentityDigest": "1725958b9c489029976a556b545ff778cbb781e2df5f100642186c0ac9df3ffc",
+          "artifactRecordDigest": "3ba51b04a5ea8c7dc8bf1757d5a0267741e91717d2d59ba5c42ab7c70947024a",
+          "contentSha256": "2bb3ed9b53153e4bbfd1087f669de3e5c1b649362c156f300c5b262412b25397",
+          "startLine": 1,
+          "endLine": 9,
+          "excerptSha256": "37268b8815a419c25086f3aa7992c727b780a3e9818cf4687feb29f604dcce81"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-bullmq",
+          "artifactSetId": "artifact-set-6a99084fa5baf07af91b1e57a0547b8c19f2d7722fb48e5a",
+          "artifactSetIdentityDigest": "6a99084fa5baf07af91b1e57a0547b8c19f2d7722fb48e5a6425161d8a6270e7",
+          "artifactSetRecordDigest": "7987566516015e2e9879f65675e5fe987a83bcf9643a6d557f865d7aef0dee87",
+          "artifactId": "artifact-3efc28f8b230d51337da77fe7f8285175edf55e4c4ef6203",
+          "artifactIdentityDigest": "3efc28f8b230d51337da77fe7f8285175edf55e4c4ef6203b94e42f7e8ce0093",
+          "artifactRecordDigest": "e4bab2acd6f51e5f9006a96540cac3898c75c5182036ae5691f5b00706e68e4c",
+          "contentSha256": "204d420167361620b685e5f6a651ce7b9ea1420dff9e3b24a660c37856953a8e",
+          "startLine": 180,
+          "endLine": 220,
+          "excerptSha256": "22e507db5301cba0ebb2d3bd98d3f8ed62365adde290611725baf4d255d6c053"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-f4d4e8364985d91de4d257cb07c7bc04b0e0e0d866898e0d",
+      "claimDigest": "f4d4e8364985d91de4d257cb07c7bc04b0e0e0d866898e0d7dfbf45b6ba25541",
+      "candidateId": "jobs-celery",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-576d4be8ab27ec2aa00032c610c64d6af1934088"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-celery",
+          "artifactSetId": "artifact-set-3e773472ae17054542d999543e9739ab7283f6df203e4a78",
+          "artifactSetIdentityDigest": "3e773472ae17054542d999543e9739ab7283f6df203e4a78b45af2653e14765d",
+          "artifactSetRecordDigest": "d25bb357f47a7e8831f556fc4049708b9c632dfd4774e6d36889eeabcbcb26b0",
+          "artifactId": "artifact-b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021",
+          "artifactIdentityDigest": "b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021eed9c97564fdad8a",
+          "artifactRecordDigest": "8c9dcc85f4a09c53cb382c18ba4a0a39db2d264cfb00582c0af7df907add88ff",
+          "contentSha256": "a0123281a959323d88468ccd5a456c41b0ea297ec47e338bab486e76cc024da0",
+          "startLine": 147,
+          "endLine": 150,
+          "excerptSha256": "3970b041daaaf0cc95a2f1d2a8de9ebdc11d26c53c066fb786ae5b541ee4bb6b"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-celery",
+          "artifactSetId": "artifact-set-3e773472ae17054542d999543e9739ab7283f6df203e4a78",
+          "artifactSetIdentityDigest": "3e773472ae17054542d999543e9739ab7283f6df203e4a78b45af2653e14765d",
+          "artifactSetRecordDigest": "d25bb357f47a7e8831f556fc4049708b9c632dfd4774e6d36889eeabcbcb26b0",
+          "artifactId": "artifact-b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021",
+          "artifactIdentityDigest": "b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021eed9c97564fdad8a",
+          "artifactRecordDigest": "8c9dcc85f4a09c53cb382c18ba4a0a39db2d264cfb00582c0af7df907add88ff",
+          "contentSha256": "a0123281a959323d88468ccd5a456c41b0ea297ec47e338bab486e76cc024da0",
+          "startLine": 176,
+          "endLine": 198,
+          "excerptSha256": "ef77353a5028591768740f717ee69d81c78a50239d16e70874f74baba47fb8dc"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-b529fbf6a95170766d2a7ec9934d3ad6e318b07c07b28d4e",
+      "claimDigest": "b529fbf6a95170766d2a7ec9934d3ad6e318b07c07b28d4ed832ee5516bd463d",
+      "candidateId": "jobs-celery",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-576d4be8ab27ec2aa00032c610c64d6af1934088"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-celery",
+          "artifactSetId": "artifact-set-3e773472ae17054542d999543e9739ab7283f6df203e4a78",
+          "artifactSetIdentityDigest": "3e773472ae17054542d999543e9739ab7283f6df203e4a78b45af2653e14765d",
+          "artifactSetRecordDigest": "d25bb357f47a7e8831f556fc4049708b9c632dfd4774e6d36889eeabcbcb26b0",
+          "artifactId": "artifact-b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021",
+          "artifactIdentityDigest": "b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021eed9c97564fdad8a",
+          "artifactRecordDigest": "8c9dcc85f4a09c53cb382c18ba4a0a39db2d264cfb00582c0af7df907add88ff",
+          "contentSha256": "a0123281a959323d88468ccd5a456c41b0ea297ec47e338bab486e76cc024da0",
+          "startLine": 147,
+          "endLine": 150,
+          "excerptSha256": "3970b041daaaf0cc95a2f1d2a8de9ebdc11d26c53c066fb786ae5b541ee4bb6b"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-celery",
+          "artifactSetId": "artifact-set-3e773472ae17054542d999543e9739ab7283f6df203e4a78",
+          "artifactSetIdentityDigest": "3e773472ae17054542d999543e9739ab7283f6df203e4a78b45af2653e14765d",
+          "artifactSetRecordDigest": "d25bb357f47a7e8831f556fc4049708b9c632dfd4774e6d36889eeabcbcb26b0",
+          "artifactId": "artifact-b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021",
+          "artifactIdentityDigest": "b9b4c6dbf75639874fe7d95acaf1c9d9d55b084d818c5021eed9c97564fdad8a",
+          "artifactRecordDigest": "8c9dcc85f4a09c53cb382c18ba4a0a39db2d264cfb00582c0af7df907add88ff",
+          "contentSha256": "a0123281a959323d88468ccd5a456c41b0ea297ec47e338bab486e76cc024da0",
+          "startLine": 176,
+          "endLine": 198,
+          "excerptSha256": "ef77353a5028591768740f717ee69d81c78a50239d16e70874f74baba47fb8dc"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-577affd4be6e635a9ad46bc3bc5505d93427d9e9f8cb5daf",
+      "claimDigest": "577affd4be6e635a9ad46bc3bc5505d93427d9e9f8cb5dafd12884a4a3ca9bed",
+      "candidateId": "jobs-dagster",
+      "fieldId": "optional-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-a706ddb1c9b1358506db965df2bab11c964f7777"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-dagster",
+          "artifactSetId": "artifact-set-826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d45",
+          "artifactSetIdentityDigest": "826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d4582af449b4e969083",
+          "artifactSetRecordDigest": "48f53f3e49f3a11062b35c7b7af8af830ae60fcffc749de2215eee2f2c04691a",
+          "artifactId": "artifact-235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307",
+          "artifactIdentityDigest": "235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307299c70a58c465ec4",
+          "artifactRecordDigest": "9326c2f317abc35aecbbefa8f073932f608b29227d880a7c4f5fe3d498592a2a",
+          "contentSha256": "95d40fd56cc4520043ebfbabc91d25dbc5b33f5a5c4531bf7835d15384359210",
+          "startLine": 26,
+          "endLine": 30,
+          "excerptSha256": "59acd8f422fdf9de209d864622b15b3831dbd0d73a2170dee71ce0c457181b2f"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-ba8963471f6c121fbd6624d6cedbba28cee8299e45a501f8",
+      "claimDigest": "ba8963471f6c121fbd6624d6cedbba28cee8299e45a501f8089b9e9a3e969408",
+      "candidateId": "jobs-dagster",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-a706ddb1c9b1358506db965df2bab11c964f7777"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-dagster",
+          "artifactSetId": "artifact-set-826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d45",
+          "artifactSetIdentityDigest": "826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d4582af449b4e969083",
+          "artifactSetRecordDigest": "48f53f3e49f3a11062b35c7b7af8af830ae60fcffc749de2215eee2f2c04691a",
+          "artifactId": "artifact-235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307",
+          "artifactIdentityDigest": "235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307299c70a58c465ec4",
+          "artifactRecordDigest": "9326c2f317abc35aecbbefa8f073932f608b29227d880a7c4f5fe3d498592a2a",
+          "contentSha256": "95d40fd56cc4520043ebfbabc91d25dbc5b33f5a5c4531bf7835d15384359210",
+          "startLine": 16,
+          "endLine": 30,
+          "excerptSha256": "543839d9580a4853a431f6762473636dd0c5a699f42d84ffebc1d47e6a0ef94b"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-de422c59d68206470b86a3b4b15a714ca51f5dfd95b6fc77",
+      "claimDigest": "de422c59d68206470b86a3b4b15a714ca51f5dfd95b6fc775f37f3677df08497",
+      "candidateId": "jobs-dagster",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-a706ddb1c9b1358506db965df2bab11c964f7777"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-dagster",
+          "artifactSetId": "artifact-set-826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d45",
+          "artifactSetIdentityDigest": "826cb56ac7e25e9d388f7a82952813cff08af19e4ed60d4582af449b4e969083",
+          "artifactSetRecordDigest": "48f53f3e49f3a11062b35c7b7af8af830ae60fcffc749de2215eee2f2c04691a",
+          "artifactId": "artifact-235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307",
+          "artifactIdentityDigest": "235bd4d732b730d157dbe39a984669c14bfb9cb5e0ffa307299c70a58c465ec4",
+          "artifactRecordDigest": "9326c2f317abc35aecbbefa8f073932f608b29227d880a7c4f5fe3d498592a2a",
+          "contentSha256": "95d40fd56cc4520043ebfbabc91d25dbc5b33f5a5c4531bf7835d15384359210",
+          "startLine": 16,
+          "endLine": 30,
+          "excerptSha256": "543839d9580a4853a431f6762473636dd0c5a699f42d84ffebc1d47e6a0ef94b"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-391a3338c7caa71106dca3c75208f3d5745ae26c0eda3cfd",
+      "claimDigest": "391a3338c7caa71106dca3c75208f3d5745ae26c0eda3cfd58be34db75677194",
+      "candidateId": "jobs-graphile-worker",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-cea9d60e0341718b44b1851ff252b314527adbdf"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-graphile-worker",
+          "artifactSetId": "artifact-set-5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f",
+          "artifactSetIdentityDigest": "5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f582c74814ff40dd1",
+          "artifactSetRecordDigest": "65c1b76359f402769dbf55c0b38a82a4a251bfd2e7384d488cabeb02cc42dc2c",
+          "artifactId": "artifact-39bba1164bcf246ec49c257cd75b02d174dfcb321b7d7e54",
+          "artifactIdentityDigest": "39bba1164bcf246ec49c257cd75b02d174dfcb321b7d7e542a9b656bf5e9cfc5",
+          "artifactRecordDigest": "dafe1d66d13f107bfab3eafd415f5bc8efaa6ea4e4d7cb1ba82947653301a79e",
+          "contentSha256": "e9178923f8f2b19694273710b6f0bd1f8779bfd6b1e79e02b133894eb89d9f09",
+          "startLine": 11,
+          "endLine": 16,
+          "excerptSha256": "d5226c463cdebc401db29a0b70a658bbb0ea5a99461731583f4452a3b5112546"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-graphile-worker",
+          "artifactSetId": "artifact-set-5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f",
+          "artifactSetIdentityDigest": "5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f582c74814ff40dd1",
+          "artifactSetRecordDigest": "65c1b76359f402769dbf55c0b38a82a4a251bfd2e7384d488cabeb02cc42dc2c",
+          "artifactId": "artifact-c1377e70db0f0115878f053ff0091cd5b6f456d05893a05b",
+          "artifactIdentityDigest": "c1377e70db0f0115878f053ff0091cd5b6f456d05893a05bb5c5f6db33d92ec3",
+          "artifactRecordDigest": "08ed65b6ef227fc2b0bc98953ce1c1cec740f9f5a8b4a8241163069456601893",
+          "contentSha256": "ba9e6ff173cf5051c991388ed6f27ebb60421dbd266512e7884d40fb944a9c8b",
+          "startLine": 82,
+          "endLine": 102,
+          "excerptSha256": "d55d219fe44d6f7a5bf89d8e7dd751f8d54065461a0dd60e6c0baacd15ac4985"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-1f3dcd745292530ec0a749a22225405d75d7abdd21dd656f",
+      "claimDigest": "1f3dcd745292530ec0a749a22225405d75d7abdd21dd656f5ebff5849a68ed1e",
+      "candidateId": "jobs-graphile-worker",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-cea9d60e0341718b44b1851ff252b314527adbdf"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-graphile-worker",
+          "artifactSetId": "artifact-set-5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f",
+          "artifactSetIdentityDigest": "5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f582c74814ff40dd1",
+          "artifactSetRecordDigest": "65c1b76359f402769dbf55c0b38a82a4a251bfd2e7384d488cabeb02cc42dc2c",
+          "artifactId": "artifact-39bba1164bcf246ec49c257cd75b02d174dfcb321b7d7e54",
+          "artifactIdentityDigest": "39bba1164bcf246ec49c257cd75b02d174dfcb321b7d7e542a9b656bf5e9cfc5",
+          "artifactRecordDigest": "dafe1d66d13f107bfab3eafd415f5bc8efaa6ea4e4d7cb1ba82947653301a79e",
+          "contentSha256": "e9178923f8f2b19694273710b6f0bd1f8779bfd6b1e79e02b133894eb89d9f09",
+          "startLine": 11,
+          "endLine": 16,
+          "excerptSha256": "d5226c463cdebc401db29a0b70a658bbb0ea5a99461731583f4452a3b5112546"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-graphile-worker",
+          "artifactSetId": "artifact-set-5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f",
+          "artifactSetIdentityDigest": "5a20c63191e2a2c7b0a1016e1af853a04b0e3fee720aa42f582c74814ff40dd1",
+          "artifactSetRecordDigest": "65c1b76359f402769dbf55c0b38a82a4a251bfd2e7384d488cabeb02cc42dc2c",
+          "artifactId": "artifact-c1377e70db0f0115878f053ff0091cd5b6f456d05893a05b",
+          "artifactIdentityDigest": "c1377e70db0f0115878f053ff0091cd5b6f456d05893a05bb5c5f6db33d92ec3",
+          "artifactRecordDigest": "08ed65b6ef227fc2b0bc98953ce1c1cec740f9f5a8b4a8241163069456601893",
+          "contentSha256": "ba9e6ff173cf5051c991388ed6f27ebb60421dbd266512e7884d40fb944a9c8b",
+          "startLine": 82,
+          "endLine": 102,
+          "excerptSha256": "d55d219fe44d6f7a5bf89d8e7dd751f8d54065461a0dd60e6c0baacd15ac4985"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-09d28f7e0c87396922a4d7c81aff902d540580cb8eb94c72",
+      "claimDigest": "09d28f7e0c87396922a4d7c81aff902d540580cb8eb94c724c189bd9b7f86106",
+      "candidateId": "jobs-inngest",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f7ae7bdaeb56bb98df1407b3694e9ea192a86501"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-inngest",
+          "artifactSetId": "artifact-set-d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475",
+          "artifactSetIdentityDigest": "d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475302b86b9f4987628",
+          "artifactSetRecordDigest": "22a67910304e5f304c82395e2ca00840c5f53634f17b9a1cc98cda3f3505d7b8",
+          "artifactId": "artifact-c4ec818770053ab66a7649030a7fd993d1e828189b1e0053",
+          "artifactIdentityDigest": "c4ec818770053ab66a7649030a7fd993d1e828189b1e005331aad7c70cda9acf",
+          "artifactRecordDigest": "778e0e27a2c319869b725659647a4b9383092bb03869c9556ce6a66bc672be58",
+          "contentSha256": "b23b0f7a336adba851b9213e64b3fa8a9a52ac6bb71b8a51805b8f3a3c62df5a",
+          "startLine": 8,
+          "endLine": 14,
+          "excerptSha256": "23c880d26b543493654b93addbf842a24d1347178352d1d6ed40fec5588d3152"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-inngest",
+          "artifactSetId": "artifact-set-d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475",
+          "artifactSetIdentityDigest": "d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475302b86b9f4987628",
+          "artifactSetRecordDigest": "22a67910304e5f304c82395e2ca00840c5f53634f17b9a1cc98cda3f3505d7b8",
+          "artifactId": "artifact-c4ec818770053ab66a7649030a7fd993d1e828189b1e0053",
+          "artifactIdentityDigest": "c4ec818770053ab66a7649030a7fd993d1e828189b1e005331aad7c70cda9acf",
+          "artifactRecordDigest": "778e0e27a2c319869b725659647a4b9383092bb03869c9556ce6a66bc672be58",
+          "contentSha256": "b23b0f7a336adba851b9213e64b3fa8a9a52ac6bb71b8a51805b8f3a3c62df5a",
+          "startLine": 70,
+          "endLine": 82,
+          "excerptSha256": "a4ffe16abca00aede94083328229d5480229b47085b969c4380e4fcbadedf49e"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-6a6161170137245f838896c968bd289afb378bc4c5fec09c",
+      "claimDigest": "6a6161170137245f838896c968bd289afb378bc4c5fec09cf461f958ffadbb4a",
+      "candidateId": "jobs-inngest",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f7ae7bdaeb56bb98df1407b3694e9ea192a86501"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-inngest",
+          "artifactSetId": "artifact-set-d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475",
+          "artifactSetIdentityDigest": "d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475302b86b9f4987628",
+          "artifactSetRecordDigest": "22a67910304e5f304c82395e2ca00840c5f53634f17b9a1cc98cda3f3505d7b8",
+          "artifactId": "artifact-c4ec818770053ab66a7649030a7fd993d1e828189b1e0053",
+          "artifactIdentityDigest": "c4ec818770053ab66a7649030a7fd993d1e828189b1e005331aad7c70cda9acf",
+          "artifactRecordDigest": "778e0e27a2c319869b725659647a4b9383092bb03869c9556ce6a66bc672be58",
+          "contentSha256": "b23b0f7a336adba851b9213e64b3fa8a9a52ac6bb71b8a51805b8f3a3c62df5a",
+          "startLine": 8,
+          "endLine": 14,
+          "excerptSha256": "23c880d26b543493654b93addbf842a24d1347178352d1d6ed40fec5588d3152"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-inngest",
+          "artifactSetId": "artifact-set-d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475",
+          "artifactSetIdentityDigest": "d9ddfb4537f720540f9e3d81c5e297625bcfe18e2b2d3475302b86b9f4987628",
+          "artifactSetRecordDigest": "22a67910304e5f304c82395e2ca00840c5f53634f17b9a1cc98cda3f3505d7b8",
+          "artifactId": "artifact-c4ec818770053ab66a7649030a7fd993d1e828189b1e0053",
+          "artifactIdentityDigest": "c4ec818770053ab66a7649030a7fd993d1e828189b1e005331aad7c70cda9acf",
+          "artifactRecordDigest": "778e0e27a2c319869b725659647a4b9383092bb03869c9556ce6a66bc672be58",
+          "contentSha256": "b23b0f7a336adba851b9213e64b3fa8a9a52ac6bb71b8a51805b8f3a3c62df5a",
+          "startLine": 70,
+          "endLine": 82,
+          "excerptSha256": "a4ffe16abca00aede94083328229d5480229b47085b969c4380e4fcbadedf49e"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7507040a2dfed7b1a6bd986294d06c17d41a341e5b74c8f1",
+      "claimDigest": "7507040a2dfed7b1a6bd986294d06c17d41a341e5b74c8f11e8da3dc6576ce7d",
+      "candidateId": "jobs-kue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c5647b1a8890319169fa4ce2cf4ed4122c1c704a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-kue",
+          "artifactSetId": "artifact-set-255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84c",
+          "artifactSetIdentityDigest": "255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84cf132e328dd7d3ddb",
+          "artifactSetRecordDigest": "37ecab49307c7be2207c0b435248524866098001558dcfb64ff5c67a2362d56f",
+          "artifactId": "artifact-9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9",
+          "artifactIdentityDigest": "9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9215fe324dcb4ae8a",
+          "artifactRecordDigest": "12a4c50c8b5ef0278eeddd45193863dcaef0de73adbba2ad166f0ac03be31fb4",
+          "contentSha256": "fdfbe2104c21cb6d9e833ce9dad78623edac333c2db0e46530110942adfd23b1",
+          "startLine": 13,
+          "endLine": 13,
+          "excerptSha256": "89acf3185da994bc6a4c4420dffb8bd13ce81927ac564d0dae6c39fe31e630ea"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-kue",
+          "artifactSetId": "artifact-set-255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84c",
+          "artifactSetIdentityDigest": "255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84cf132e328dd7d3ddb",
+          "artifactSetRecordDigest": "37ecab49307c7be2207c0b435248524866098001558dcfb64ff5c67a2362d56f",
+          "artifactId": "artifact-9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9",
+          "artifactIdentityDigest": "9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9215fe324dcb4ae8a",
+          "artifactRecordDigest": "12a4c50c8b5ef0278eeddd45193863dcaef0de73adbba2ad166f0ac03be31fb4",
+          "contentSha256": "fdfbe2104c21cb6d9e833ce9dad78623edac333c2db0e46530110942adfd23b1",
+          "startLine": 552,
+          "endLine": 569,
+          "excerptSha256": "b1acbce21d546970bb6783525bee25a96be7859eca94fb674d04366688f467b6"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-77a69379803fcca3dbfeef000fb070db93234d317ca473e8",
+      "claimDigest": "77a69379803fcca3dbfeef000fb070db93234d317ca473e84edc1e6be2b927da",
+      "candidateId": "jobs-kue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c5647b1a8890319169fa4ce2cf4ed4122c1c704a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-kue",
+          "artifactSetId": "artifact-set-255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84c",
+          "artifactSetIdentityDigest": "255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84cf132e328dd7d3ddb",
+          "artifactSetRecordDigest": "37ecab49307c7be2207c0b435248524866098001558dcfb64ff5c67a2362d56f",
+          "artifactId": "artifact-9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9",
+          "artifactIdentityDigest": "9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9215fe324dcb4ae8a",
+          "artifactRecordDigest": "12a4c50c8b5ef0278eeddd45193863dcaef0de73adbba2ad166f0ac03be31fb4",
+          "contentSha256": "fdfbe2104c21cb6d9e833ce9dad78623edac333c2db0e46530110942adfd23b1",
+          "startLine": 13,
+          "endLine": 13,
+          "excerptSha256": "89acf3185da994bc6a4c4420dffb8bd13ce81927ac564d0dae6c39fe31e630ea"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-kue",
+          "artifactSetId": "artifact-set-255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84c",
+          "artifactSetIdentityDigest": "255282fede2b838f28a6d96bf9fc7643b3eb9c0eed3cb84cf132e328dd7d3ddb",
+          "artifactSetRecordDigest": "37ecab49307c7be2207c0b435248524866098001558dcfb64ff5c67a2362d56f",
+          "artifactId": "artifact-9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9",
+          "artifactIdentityDigest": "9ff065e9c63213005888ed5a658a4eb95780fadb878dbcf9215fe324dcb4ae8a",
+          "artifactRecordDigest": "12a4c50c8b5ef0278eeddd45193863dcaef0de73adbba2ad166f0ac03be31fb4",
+          "contentSha256": "fdfbe2104c21cb6d9e833ce9dad78623edac333c2db0e46530110942adfd23b1",
+          "startLine": 552,
+          "endLine": 569,
+          "excerptSha256": "b1acbce21d546970bb6783525bee25a96be7859eca94fb674d04366688f467b6"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7276ff1c22bbcf79c4f3c0cd3d0fe047d6ceb268f3cee492",
+      "claimDigest": "7276ff1c22bbcf79c4f3c0cd3d0fe047d6ceb268f3cee4921e1e225b958d9fdb",
+      "candidateId": "jobs-n8n",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-44e78aca7d06f0dfdbfb8bb4f8dc5282bf6d04c9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-n8n",
+          "artifactSetId": "artifact-set-c994a955c52fa00a2d5ac620c2a166427520605ce84b94d7",
+          "artifactSetIdentityDigest": "c994a955c52fa00a2d5ac620c2a166427520605ce84b94d75be7e7cb37550915",
+          "artifactSetRecordDigest": "6fab76da40d52a539e9f44be0655660df7f83a55be0621a6a0f48880fbff0861",
+          "artifactId": "artifact-f3f39f0d04c79bdaecc94edbd13f38c0c785fc439ab6f57a",
+          "artifactIdentityDigest": "f3f39f0d04c79bdaecc94edbd13f38c0c785fc439ab6f57accc3ca625122c3e7",
+          "artifactRecordDigest": "8b3d87bc7e6511417f72c196ae4f664cd03bf6991108c3869150ff5244559f72",
+          "contentSha256": "9af8818267836df37f8d58cbb1db8c02c83cbd110118361811f4910d4de59eca",
+          "startLine": 18,
+          "endLine": 33,
+          "excerptSha256": "586a9a0db522925bf1a10d436ec79c7b403fa4fbf45153385f02e10753e8a89b"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-f9ec81ed93b2dc6224cf2f2f3f5879ce63d2d7251a6a4d17",
+      "claimDigest": "f9ec81ed93b2dc6224cf2f2f3f5879ce63d2d7251a6a4d17a0ace54582243aa6",
+      "candidateId": "jobs-n8n",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-44e78aca7d06f0dfdbfb8bb4f8dc5282bf6d04c9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-n8n",
+          "artifactSetId": "artifact-set-c994a955c52fa00a2d5ac620c2a166427520605ce84b94d7",
+          "artifactSetIdentityDigest": "c994a955c52fa00a2d5ac620c2a166427520605ce84b94d75be7e7cb37550915",
+          "artifactSetRecordDigest": "6fab76da40d52a539e9f44be0655660df7f83a55be0621a6a0f48880fbff0861",
+          "artifactId": "artifact-f3f39f0d04c79bdaecc94edbd13f38c0c785fc439ab6f57a",
+          "artifactIdentityDigest": "f3f39f0d04c79bdaecc94edbd13f38c0c785fc439ab6f57accc3ca625122c3e7",
+          "artifactRecordDigest": "8b3d87bc7e6511417f72c196ae4f664cd03bf6991108c3869150ff5244559f72",
+          "contentSha256": "9af8818267836df37f8d58cbb1db8c02c83cbd110118361811f4910d4de59eca",
+          "startLine": 18,
+          "endLine": 33,
+          "excerptSha256": "586a9a0db522925bf1a10d436ec79c7b403fa4fbf45153385f02e10753e8a89b"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-b251289126885ed398e3efad6c8bc62e26942ff66a3606e1",
+      "claimDigest": "b251289126885ed398e3efad6c8bc62e26942ff66a3606e121bd111bb0035785",
+      "candidateId": "jobs-node-cron",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-bfc02c3b008b725fc7f93d948468f08f58308acc"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-node-cron",
+          "artifactSetId": "artifact-set-ecf6d11e6a3cb7b9a39bff49f5da44eba1b6d1a7c9cc9ef3",
+          "artifactSetIdentityDigest": "ecf6d11e6a3cb7b9a39bff49f5da44eba1b6d1a7c9cc9ef3c7d0f3827234a5da",
+          "artifactSetRecordDigest": "be9f5709ef56c86772aa3589644bad349a697470adc782f7b0dacb57996b3b7b",
+          "artifactId": "artifact-da821ba6277d045b5f51dba0539df40f9513011d32930e95",
+          "artifactIdentityDigest": "da821ba6277d045b5f51dba0539df40f9513011d32930e953377aa2bd49b1aa3",
+          "artifactRecordDigest": "c9edc3f081066e4c3633d666ef3e98dd0c248a35876ee4efe248c3d9c2ece8e0",
+          "contentSha256": "c59862b8b19374b586b70524917594b3548a9439a899d105c71d161c3d8c1dbd",
+          "startLine": 136,
+          "endLine": 140,
+          "excerptSha256": "f90f80001980d97544eb890cecc53741258c34e33e2604d455809eb7cebe5bc5"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-75e0b78d55d8b3dac104d4435802e14ea9dd73147eda7561",
+      "claimDigest": "75e0b78d55d8b3dac104d4435802e14ea9dd73147eda7561c3fefb3d9269ebe4",
+      "candidateId": "jobs-node-cron",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-bfc02c3b008b725fc7f93d948468f08f58308acc"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-node-cron",
+          "artifactSetId": "artifact-set-ecf6d11e6a3cb7b9a39bff49f5da44eba1b6d1a7c9cc9ef3",
+          "artifactSetIdentityDigest": "ecf6d11e6a3cb7b9a39bff49f5da44eba1b6d1a7c9cc9ef3c7d0f3827234a5da",
+          "artifactSetRecordDigest": "be9f5709ef56c86772aa3589644bad349a697470adc782f7b0dacb57996b3b7b",
+          "artifactId": "artifact-da821ba6277d045b5f51dba0539df40f9513011d32930e95",
+          "artifactIdentityDigest": "da821ba6277d045b5f51dba0539df40f9513011d32930e953377aa2bd49b1aa3",
+          "artifactRecordDigest": "c9edc3f081066e4c3633d666ef3e98dd0c248a35876ee4efe248c3d9c2ece8e0",
+          "contentSha256": "c59862b8b19374b586b70524917594b3548a9439a899d105c71d161c3d8c1dbd",
+          "startLine": 39,
+          "endLine": 47,
+          "excerptSha256": "84309c2d70c457ba8bf969dfadf642523e7d3d59eba3ab48c54e2e18dac6eb93"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-245e6d7860051fed2dc461c96fe381ddd4fbcf8df48111f2",
+      "claimDigest": "245e6d7860051fed2dc461c96fe381ddd4fbcf8df48111f24a549baeae750810",
+      "candidateId": "jobs-node-schedule",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-afaefb9b52737955633676ef7c5913146de45eb9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-node-schedule",
+          "artifactSetId": "artifact-set-12e242858d055904993ae5240959c7a60b2a9625b4301c7f",
+          "artifactSetIdentityDigest": "12e242858d055904993ae5240959c7a60b2a9625b4301c7f865ad698b540d6dc",
+          "artifactSetRecordDigest": "7e8e70128fbf6f06c35f6e0176b6a76fc86b7b4412b00e069d9b90f375118ab0",
+          "artifactId": "artifact-81e02cd1b7601946773608e9b378f97d2918e75161910928",
+          "artifactIdentityDigest": "81e02cd1b7601946773608e9b378f97d2918e7516191092860bf5c476dcba07d",
+          "artifactRecordDigest": "e64da8c8366274960ef29afbab6507f3735565f95a6bb67d8f9257fdf04657b2",
+          "contentSha256": "e519f0567681ec84578e8327727b29b16c77fe613fcf18609f01e66b8ea330d1",
+          "startLine": 28,
+          "endLine": 44,
+          "excerptSha256": "3023a53b7b35a5984ed795ea886900e3dcbf487e75015e9312d81ec801c81b18"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-40853f78c595645ff99443fbef580c718977c39f1c670196",
+      "claimDigest": "40853f78c595645ff99443fbef580c718977c39f1c6701966325e5360414f135",
+      "candidateId": "jobs-node-schedule",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-afaefb9b52737955633676ef7c5913146de45eb9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-node-schedule",
+          "artifactSetId": "artifact-set-12e242858d055904993ae5240959c7a60b2a9625b4301c7f",
+          "artifactSetIdentityDigest": "12e242858d055904993ae5240959c7a60b2a9625b4301c7f865ad698b540d6dc",
+          "artifactSetRecordDigest": "7e8e70128fbf6f06c35f6e0176b6a76fc86b7b4412b00e069d9b90f375118ab0",
+          "artifactId": "artifact-81e02cd1b7601946773608e9b378f97d2918e75161910928",
+          "artifactIdentityDigest": "81e02cd1b7601946773608e9b378f97d2918e7516191092860bf5c476dcba07d",
+          "artifactRecordDigest": "e64da8c8366274960ef29afbab6507f3735565f95a6bb67d8f9257fdf04657b2",
+          "contentSha256": "e519f0567681ec84578e8327727b29b16c77fe613fcf18609f01e66b8ea330d1",
+          "startLine": 28,
+          "endLine": 44,
+          "excerptSha256": "3023a53b7b35a5984ed795ea886900e3dcbf487e75015e9312d81ec801c81b18"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-a0c56ca50f794106520397751a7e02cda57337336b2b7e7c",
+      "claimDigest": "a0c56ca50f794106520397751a7e02cda57337336b2b7e7cd69254d357f216f9",
+      "candidateId": "jobs-p-queue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-180ab9e25cd10b6f548767d7176076b50d25e188"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-p-queue",
+          "artifactSetId": "artifact-set-e71974387901d5857f592677d7ae663af5a277d0715a40f3",
+          "artifactSetIdentityDigest": "e71974387901d5857f592677d7ae663af5a277d0715a40f35cf7ba57f15bddd2",
+          "artifactSetRecordDigest": "17497eb3435df4f5d5dda42befa0d2617b494aebf29c4e1938674d46e3ab629d",
+          "artifactId": "artifact-b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975",
+          "artifactIdentityDigest": "b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975a6b2180d880f702c",
+          "artifactRecordDigest": "f65bb74b84a7be603068035dcc9167f687e93e5fe592f8486ba5e50c84049a94",
+          "contentSha256": "5b553a992bc1cd3ebb675384f89ea39d9bf6e75e5b448691d7f3c30affd9aadc",
+          "startLine": 1,
+          "endLine": 7,
+          "excerptSha256": "e0f7f3c8bdcc684927211050f8c67444a06ff77304cf0690b976de3a2108905c"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-p-queue",
+          "artifactSetId": "artifact-set-e71974387901d5857f592677d7ae663af5a277d0715a40f3",
+          "artifactSetIdentityDigest": "e71974387901d5857f592677d7ae663af5a277d0715a40f35cf7ba57f15bddd2",
+          "artifactSetRecordDigest": "17497eb3435df4f5d5dda42befa0d2617b494aebf29c4e1938674d46e3ab629d",
+          "artifactId": "artifact-b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975",
+          "artifactIdentityDigest": "b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975a6b2180d880f702c",
+          "artifactRecordDigest": "f65bb74b84a7be603068035dcc9167f687e93e5fe592f8486ba5e50c84049a94",
+          "contentSha256": "5b553a992bc1cd3ebb675384f89ea39d9bf6e75e5b448691d7f3c30affd9aadc",
+          "startLine": 47,
+          "endLine": 66,
+          "excerptSha256": "39ac62a25c10149e40ffdd1880fe04d502a9e513cee57f40d88e6ea4fdc17db0"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7cc501ab32fee2bf834ba6bfeb76d1408d61512be4eb8ef6",
+      "claimDigest": "7cc501ab32fee2bf834ba6bfeb76d1408d61512be4eb8ef6e6fba48727fcb2b3",
+      "candidateId": "jobs-p-queue",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-180ab9e25cd10b6f548767d7176076b50d25e188"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-p-queue",
+          "artifactSetId": "artifact-set-e71974387901d5857f592677d7ae663af5a277d0715a40f3",
+          "artifactSetIdentityDigest": "e71974387901d5857f592677d7ae663af5a277d0715a40f35cf7ba57f15bddd2",
+          "artifactSetRecordDigest": "17497eb3435df4f5d5dda42befa0d2617b494aebf29c4e1938674d46e3ab629d",
+          "artifactId": "artifact-b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975",
+          "artifactIdentityDigest": "b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975a6b2180d880f702c",
+          "artifactRecordDigest": "f65bb74b84a7be603068035dcc9167f687e93e5fe592f8486ba5e50c84049a94",
+          "contentSha256": "5b553a992bc1cd3ebb675384f89ea39d9bf6e75e5b448691d7f3c30affd9aadc",
+          "startLine": 1,
+          "endLine": 7,
+          "excerptSha256": "e0f7f3c8bdcc684927211050f8c67444a06ff77304cf0690b976de3a2108905c"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-p-queue",
+          "artifactSetId": "artifact-set-e71974387901d5857f592677d7ae663af5a277d0715a40f3",
+          "artifactSetIdentityDigest": "e71974387901d5857f592677d7ae663af5a277d0715a40f35cf7ba57f15bddd2",
+          "artifactSetRecordDigest": "17497eb3435df4f5d5dda42befa0d2617b494aebf29c4e1938674d46e3ab629d",
+          "artifactId": "artifact-b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975",
+          "artifactIdentityDigest": "b640f5c8cbfba191b92f632389a6027af61fb7df86b6b975a6b2180d880f702c",
+          "artifactRecordDigest": "f65bb74b84a7be603068035dcc9167f687e93e5fe592f8486ba5e50c84049a94",
+          "contentSha256": "5b553a992bc1cd3ebb675384f89ea39d9bf6e75e5b448691d7f3c30affd9aadc",
+          "startLine": 47,
+          "endLine": 66,
+          "excerptSha256": "39ac62a25c10149e40ffdd1880fe04d502a9e513cee57f40d88e6ea4fdc17db0"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-1958d090a59a22ee09fbdd4397fab1eb0244fb3e1fc75b86",
+      "claimDigest": "1958d090a59a22ee09fbdd4397fab1eb0244fb3e1fc75b868f372d829d2d60b7",
+      "candidateId": "jobs-pg-boss",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-55ee32f66f0bf683ff823c0ad8be2056dbc91ce4"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-pg-boss",
+          "artifactSetId": "artifact-set-1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706",
+          "artifactSetIdentityDigest": "1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706af6c3e6e9be3de0a",
+          "artifactSetRecordDigest": "76941b4e651434d64f75a1b5562d17c6343cf949dea2acbe02492c097e415f89",
+          "artifactId": "artifact-ab5cc4c1c3f984d1d80ed7dd93ba32550bd1a8f8139bd7b1",
+          "artifactIdentityDigest": "ab5cc4c1c3f984d1d80ed7dd93ba32550bd1a8f8139bd7b1313fbf1f45ad1eff",
+          "artifactRecordDigest": "6a9c1675cee883192f0e76a67ae835b02ef22fcea58cb5ea0c29eda2960dd825",
+          "contentSha256": "7f67018a0cda86def9fcf35926cf595d027e6400dfa9422eb8ce4567249d6153",
+          "startLine": 2,
+          "endLine": 12,
+          "excerptSha256": "36788b6a4aa48e4286a83fb966350056e2ecb72a0cca757e31ea4ea8380836a6"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-pg-boss",
+          "artifactSetId": "artifact-set-1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706",
+          "artifactSetIdentityDigest": "1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706af6c3e6e9be3de0a",
+          "artifactSetRecordDigest": "76941b4e651434d64f75a1b5562d17c6343cf949dea2acbe02492c097e415f89",
+          "artifactId": "artifact-ccb93630856e3da3467aa3c7bfd6fd3bd35761f24cc16363",
+          "artifactIdentityDigest": "ccb93630856e3da3467aa3c7bfd6fd3bd35761f24cc16363b7b7b12e68d6d41c",
+          "artifactRecordDigest": "de64eee0976be38e313d2f7d35fa4117a3d8ff5bb167c6360c6995f44cd12ca1",
+          "contentSha256": "16c4e2859956063c4a00eadd59d315b2ff3a27a1f7368681768dd3b730b19787",
+          "startLine": 76,
+          "endLine": 78,
+          "excerptSha256": "9212f1ce488913c32ba3129f627414c699b9af762abc1abebbfac13d1da9438c"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-2bf1fd05b910d169aaa626df8c20946005d8aa51fcf134aa",
+      "claimDigest": "2bf1fd05b910d169aaa626df8c20946005d8aa51fcf134aac29892d70cb83320",
+      "candidateId": "jobs-pg-boss",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-55ee32f66f0bf683ff823c0ad8be2056dbc91ce4"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-pg-boss",
+          "artifactSetId": "artifact-set-1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706",
+          "artifactSetIdentityDigest": "1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706af6c3e6e9be3de0a",
+          "artifactSetRecordDigest": "76941b4e651434d64f75a1b5562d17c6343cf949dea2acbe02492c097e415f89",
+          "artifactId": "artifact-ab5cc4c1c3f984d1d80ed7dd93ba32550bd1a8f8139bd7b1",
+          "artifactIdentityDigest": "ab5cc4c1c3f984d1d80ed7dd93ba32550bd1a8f8139bd7b1313fbf1f45ad1eff",
+          "artifactRecordDigest": "6a9c1675cee883192f0e76a67ae835b02ef22fcea58cb5ea0c29eda2960dd825",
+          "contentSha256": "7f67018a0cda86def9fcf35926cf595d027e6400dfa9422eb8ce4567249d6153",
+          "startLine": 2,
+          "endLine": 12,
+          "excerptSha256": "36788b6a4aa48e4286a83fb966350056e2ecb72a0cca757e31ea4ea8380836a6"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-pg-boss",
+          "artifactSetId": "artifact-set-1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706",
+          "artifactSetIdentityDigest": "1174b4fb74885c71ae0a4aa97da58b5254bc8a6bab951706af6c3e6e9be3de0a",
+          "artifactSetRecordDigest": "76941b4e651434d64f75a1b5562d17c6343cf949dea2acbe02492c097e415f89",
+          "artifactId": "artifact-ccb93630856e3da3467aa3c7bfd6fd3bd35761f24cc16363",
+          "artifactIdentityDigest": "ccb93630856e3da3467aa3c7bfd6fd3bd35761f24cc16363b7b7b12e68d6d41c",
+          "artifactRecordDigest": "de64eee0976be38e313d2f7d35fa4117a3d8ff5bb167c6360c6995f44cd12ca1",
+          "contentSha256": "16c4e2859956063c4a00eadd59d315b2ff3a27a1f7368681768dd3b730b19787",
+          "startLine": 8,
+          "endLine": 35,
+          "excerptSha256": "e127dcc80ce193057471ade684d93f9580144c4e6a08f2399c7ee7e7acc65b98"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-9aed0ff29627ddc90b04265fda5be90805caafd5aec314df",
+      "claimDigest": "9aed0ff29627ddc90b04265fda5be90805caafd5aec314dfe72442d233384b0c",
+      "candidateId": "jobs-prefect",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-63e895073cf3a05cee21f8d1a70e5dc2f1bc94e0"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-prefect",
+          "artifactSetId": "artifact-set-3a8b52ddfb0c0cb04e9ead1d72c0bfb66f9ddaac03d70649",
+          "artifactSetIdentityDigest": "3a8b52ddfb0c0cb04e9ead1d72c0bfb66f9ddaac03d70649c37b1df6dd1a02bb",
+          "artifactSetRecordDigest": "7362972fd32d743b5c854b0dceb97e4ed83d61453a524eae81c70b765110038b",
+          "artifactId": "artifact-01cdcfbcf685ea6aab83083d2b09b80b7b3f7d899af0878e",
+          "artifactIdentityDigest": "01cdcfbcf685ea6aab83083d2b09b80b7b3f7d899af0878eaee7a30059584031",
+          "artifactRecordDigest": "a6c49b670433deb1c1117c2212d919d518aee2f936d4a29dc1ff659cefe2919a",
+          "contentSha256": "755a4de39a3959a2ca1c9c897dedb591217c3c38a11c026abb948333ca9e4077",
+          "startLine": 63,
+          "endLine": 104,
+          "excerptSha256": "0867cceaddc94131f3107ee75d7c9e7a4113f822d2cc87bc4760ab6e842d3cae"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-e3a88bc5d7fa2aec19bd43f1dea1d4fac8c6820619eff282",
+      "claimDigest": "e3a88bc5d7fa2aec19bd43f1dea1d4fac8c6820619eff2829df0cfe45b61187f",
+      "candidateId": "jobs-prefect",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-63e895073cf3a05cee21f8d1a70e5dc2f1bc94e0"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-prefect",
+          "artifactSetId": "artifact-set-3a8b52ddfb0c0cb04e9ead1d72c0bfb66f9ddaac03d70649",
+          "artifactSetIdentityDigest": "3a8b52ddfb0c0cb04e9ead1d72c0bfb66f9ddaac03d70649c37b1df6dd1a02bb",
+          "artifactSetRecordDigest": "7362972fd32d743b5c854b0dceb97e4ed83d61453a524eae81c70b765110038b",
+          "artifactId": "artifact-01cdcfbcf685ea6aab83083d2b09b80b7b3f7d899af0878e",
+          "artifactIdentityDigest": "01cdcfbcf685ea6aab83083d2b09b80b7b3f7d899af0878eaee7a30059584031",
+          "artifactRecordDigest": "a6c49b670433deb1c1117c2212d919d518aee2f936d4a29dc1ff659cefe2919a",
+          "contentSha256": "755a4de39a3959a2ca1c9c897dedb591217c3c38a11c026abb948333ca9e4077",
+          "startLine": 63,
+          "endLine": 104,
+          "excerptSha256": "0867cceaddc94131f3107ee75d7c9e7a4113f822d2cc87bc4760ab6e842d3cae"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-e5ed112a837879917e7b64e18adcda2fb44990b3de777c98",
+      "claimDigest": "e5ed112a837879917e7b64e18adcda2fb44990b3de777c9807d93b75cf345b2d",
+      "candidateId": "jobs-resque",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-bb0f097121f14ab1a77b06cbe8fc0606a8a2f2c7"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-resque",
+          "artifactSetId": "artifact-set-bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d",
+          "artifactSetIdentityDigest": "bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d3eccf6371118d193",
+          "artifactSetRecordDigest": "1c6e2285f4b85b6811a6c24915ba09e16ff6c7bf40906e09c792bb7720e243a5",
+          "artifactId": "artifact-2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac",
+          "artifactIdentityDigest": "2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac6ddefa1d017c7d50",
+          "artifactRecordDigest": "33fad144aba9d269053e587b81b10ab4ba8d223833765acd766385dbb17d2393",
+          "contentSha256": "3d7fbcc92e5ca013693db288187057a91ea29e644a20dbf58a1a9519b9d64960",
+          "startLine": 10,
+          "endLine": 36,
+          "excerptSha256": "19afdd3596e0795ff04b1887223fee5da1d20af48b79d76c5955f42f4cd90ad4"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7ec61e3cc63fdf571b7a4926ed0f468f3fec0f6a1ddb40ba",
+      "claimDigest": "7ec61e3cc63fdf571b7a4926ed0f468f3fec0f6a1ddb40ba7b3666ffb6145550",
+      "candidateId": "jobs-resque",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-bb0f097121f14ab1a77b06cbe8fc0606a8a2f2c7"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-resque",
+          "artifactSetId": "artifact-set-bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d",
+          "artifactSetIdentityDigest": "bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d3eccf6371118d193",
+          "artifactSetRecordDigest": "1c6e2285f4b85b6811a6c24915ba09e16ff6c7bf40906e09c792bb7720e243a5",
+          "artifactId": "artifact-2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac",
+          "artifactIdentityDigest": "2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac6ddefa1d017c7d50",
+          "artifactRecordDigest": "33fad144aba9d269053e587b81b10ab4ba8d223833765acd766385dbb17d2393",
+          "contentSha256": "3d7fbcc92e5ca013693db288187057a91ea29e644a20dbf58a1a9519b9d64960",
+          "startLine": 10,
+          "endLine": 36,
+          "excerptSha256": "19afdd3596e0795ff04b1887223fee5da1d20af48b79d76c5955f42f4cd90ad4"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-resque",
+          "artifactSetId": "artifact-set-bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d",
+          "artifactSetIdentityDigest": "bd91507b263fd5a7da808c881f83c9e50541ef3c3d59a08d3eccf6371118d193",
+          "artifactSetRecordDigest": "1c6e2285f4b85b6811a6c24915ba09e16ff6c7bf40906e09c792bb7720e243a5",
+          "artifactId": "artifact-2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac",
+          "artifactIdentityDigest": "2169a19e5f3a9fbe4772341866cc2c2c4dafdec68e0078ac6ddefa1d017c7d50",
+          "artifactRecordDigest": "33fad144aba9d269053e587b81b10ab4ba8d223833765acd766385dbb17d2393",
+          "contentSha256": "3d7fbcc92e5ca013693db288187057a91ea29e644a20dbf58a1a9519b9d64960",
+          "startLine": 600,
+          "endLine": 610,
+          "excerptSha256": "1f0615829192fe63f958db030c41f169c26c850c01e39daab17bd99d5d795883"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-4a3f0ef1f404626fd34648220f63df8eda6eb17ef7cfcf9d",
+      "claimDigest": "4a3f0ef1f404626fd34648220f63df8eda6eb17ef7cfcf9d436bca6bc133b44f",
+      "candidateId": "jobs-river",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-a29542b12b3cae3da945198d3d7c9c9120b7ab6d"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-river",
+          "artifactSetId": "artifact-set-8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b",
+          "artifactSetIdentityDigest": "8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b95f2bbe7ff07bbf4",
+          "artifactSetRecordDigest": "2acc1158b4b1627bff353808b3b3186fc64835e2cfe65a94fc55b56af2772039",
+          "artifactId": "artifact-5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8",
+          "artifactIdentityDigest": "5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8ddfafb1a6c44d777",
+          "artifactRecordDigest": "642e058ddca1ab44f82aa902b5eb21dc6329baf20dfd147f8260d2b8af89e02f",
+          "contentSha256": "e538dcc3995fe7060a21228406729210e116c9cacba4703ebde294ce3a4cdcb6",
+          "startLine": 3,
+          "endLine": 13,
+          "excerptSha256": "6b499317d9513568e4da1c8d1fde5db391c9b12e571df4990857cf5bcc98b01e"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-river",
+          "artifactSetId": "artifact-set-8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b",
+          "artifactSetIdentityDigest": "8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b95f2bbe7ff07bbf4",
+          "artifactSetRecordDigest": "2acc1158b4b1627bff353808b3b3186fc64835e2cfe65a94fc55b56af2772039",
+          "artifactId": "artifact-5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8",
+          "artifactIdentityDigest": "5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8ddfafb1a6c44d777",
+          "artifactRecordDigest": "642e058ddca1ab44f82aa902b5eb21dc6329baf20dfd147f8260d2b8af89e02f",
+          "contentSha256": "e538dcc3995fe7060a21228406729210e116c9cacba4703ebde294ce3a4cdcb6",
+          "startLine": 60,
+          "endLine": 74,
+          "excerptSha256": "a0960876b676e15cfdb312b033bbfbcbe16922f575ad8cc4653b1f88ca0aaeab"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-4cf532cf741d854fe901d30519a60eb8baa92f727d1b8fbb",
+      "claimDigest": "4cf532cf741d854fe901d30519a60eb8baa92f727d1b8fbb3bf9f300103d02d8",
+      "candidateId": "jobs-river",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-a29542b12b3cae3da945198d3d7c9c9120b7ab6d"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-river",
+          "artifactSetId": "artifact-set-8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b",
+          "artifactSetIdentityDigest": "8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b95f2bbe7ff07bbf4",
+          "artifactSetRecordDigest": "2acc1158b4b1627bff353808b3b3186fc64835e2cfe65a94fc55b56af2772039",
+          "artifactId": "artifact-5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8",
+          "artifactIdentityDigest": "5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8ddfafb1a6c44d777",
+          "artifactRecordDigest": "642e058ddca1ab44f82aa902b5eb21dc6329baf20dfd147f8260d2b8af89e02f",
+          "contentSha256": "e538dcc3995fe7060a21228406729210e116c9cacba4703ebde294ce3a4cdcb6",
+          "startLine": 3,
+          "endLine": 13,
+          "excerptSha256": "6b499317d9513568e4da1c8d1fde5db391c9b12e571df4990857cf5bcc98b01e"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-river",
+          "artifactSetId": "artifact-set-8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b",
+          "artifactSetIdentityDigest": "8b4f605b573214318eb1fffd2fcf359cea9c9d99dd4fde7b95f2bbe7ff07bbf4",
+          "artifactSetRecordDigest": "2acc1158b4b1627bff353808b3b3186fc64835e2cfe65a94fc55b56af2772039",
+          "artifactId": "artifact-5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8",
+          "artifactIdentityDigest": "5f89026af6f09e60868e70a5ed895c5f8f6b80b9f456bbc8ddfafb1a6c44d777",
+          "artifactRecordDigest": "642e058ddca1ab44f82aa902b5eb21dc6329baf20dfd147f8260d2b8af89e02f",
+          "contentSha256": "e538dcc3995fe7060a21228406729210e116c9cacba4703ebde294ce3a4cdcb6",
+          "startLine": 60,
+          "endLine": 74,
+          "excerptSha256": "a0960876b676e15cfdb312b033bbfbcbe16922f575ad8cc4653b1f88ca0aaeab"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-4e1ffdec8b00ea962a5814378c75889e53de09e363f13688",
+      "claimDigest": "4e1ffdec8b00ea962a5814378c75889e53de09e363f13688f7987e0453886d68",
+      "candidateId": "jobs-rq",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-7cc725dd12df2a289e2e452685a5c6efbc1f5be8"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-rq",
+          "artifactSetId": "artifact-set-3268f8d0ee53d75c410eaae68d1b41a59028eb3a44aae4fe",
+          "artifactSetIdentityDigest": "3268f8d0ee53d75c410eaae68d1b41a59028eb3a44aae4fe8b4153bcc7c45fd3",
+          "artifactSetRecordDigest": "6e9caa74e1ac9f3b3acce4f231b0796ecc335b11ffb713704455c5b85fca5c01",
+          "artifactId": "artifact-6c144798d11d5c9ccdd3dd6473da73055bcf14da3f30daed",
+          "artifactIdentityDigest": "6c144798d11d5c9ccdd3dd6473da73055bcf14da3f30daedc09a760d9d1511d4",
+          "artifactRecordDigest": "3c07d3a6aca138f97c80b9b68d15130fea60cb5cf3959240b4c49b4c6e449195",
+          "contentSha256": "c008690a27e8a091a61f6ccfc9e2e4193eea429013f2bdb5ad81e6cca5c9e7ee",
+          "startLine": 1,
+          "endLine": 29,
+          "excerptSha256": "a665f068d1816f375ffe2c671e091ce0c0eacda00f46b1b152f1e5984243588f"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-33334daea9773fcfb1b9dfe2edc3792b1a95d8d9b7ce0b64",
+      "claimDigest": "33334daea9773fcfb1b9dfe2edc3792b1a95d8d9b7ce0b64df21c7f0db86aecc",
+      "candidateId": "jobs-sidekiq",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f7d4e43724b0816764f16cd617c27f9edb213eb2"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-sidekiq",
+          "artifactSetId": "artifact-set-e092a5d2d143bffbd05eceebdefd359328046b34f4438cf6",
+          "artifactSetIdentityDigest": "e092a5d2d143bffbd05eceebdefd359328046b34f4438cf695f59f6321b2dcab",
+          "artifactSetRecordDigest": "ca2ea427c11cf631f9ed5feb3b218e4d585b2e3917638ef15a299aaf73d38de6",
+          "artifactId": "artifact-8d83003800c2d67f9fdd081831d226fdf8338169f389d99d",
+          "artifactIdentityDigest": "8d83003800c2d67f9fdd081831d226fdf8338169f389d99d8afc26a540fcb52b",
+          "artifactRecordDigest": "448f2fbaddc0fe58d93012e921b59ab46d2a8da82dce3068f1ad000d1b843483",
+          "contentSha256": "b6c8a76d5781693d78ed5c0b09cfcbd10d6a7de8c17b3d1e1482d91d47c6bf93",
+          "startLine": 14,
+          "endLine": 29,
+          "excerptSha256": "5355f7abfb724b5676344f9f309443f5124c75d0505099916ec2c919bb8de37f"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-bf8d11385e5e2a7829249e168abe0639d17309109861b8a3",
+      "claimDigest": "bf8d11385e5e2a7829249e168abe0639d17309109861b8a3f2e0cb4db5ea5be0",
+      "candidateId": "jobs-toad-scheduler",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-0d4dc995aad72e6bc369b70a6836b16fc59fc139"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-toad-scheduler",
+          "artifactSetId": "artifact-set-6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe",
+          "artifactSetIdentityDigest": "6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe434485d36a099f26",
+          "artifactSetRecordDigest": "0f57ff64c753d80aaf6dba041864957a026fb97f257dcb0507150a5d408feecd",
+          "artifactId": "artifact-26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f85",
+          "artifactIdentityDigest": "26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f851b88e7fac201a5e6",
+          "artifactRecordDigest": "96ef0ba0ea2666cf0301de9897624a59d213238e90f18953e4668703cd57bc0b",
+          "contentSha256": "cfe9808ecce3f7358d2608e16897e20862eef63f34e4c236a93b8f293b1fa3a4",
+          "startLine": 8,
+          "endLine": 30,
+          "excerptSha256": "aff2bb7ae66e71823604806b76382263a4cccb14d870a2030de2d178532f87d6"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-b83de9309fb273fa5456a0bf7ec6c6c085c92322bfd1669b",
+      "claimDigest": "b83de9309fb273fa5456a0bf7ec6c6c085c92322bfd1669b7644902715508f8a",
+      "candidateId": "jobs-toad-scheduler",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-0d4dc995aad72e6bc369b70a6836b16fc59fc139"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-toad-scheduler",
+          "artifactSetId": "artifact-set-6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe",
+          "artifactSetIdentityDigest": "6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe434485d36a099f26",
+          "artifactSetRecordDigest": "0f57ff64c753d80aaf6dba041864957a026fb97f257dcb0507150a5d408feecd",
+          "artifactId": "artifact-26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f85",
+          "artifactIdentityDigest": "26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f851b88e7fac201a5e6",
+          "artifactRecordDigest": "96ef0ba0ea2666cf0301de9897624a59d213238e90f18953e4668703cd57bc0b",
+          "contentSha256": "cfe9808ecce3f7358d2608e16897e20862eef63f34e4c236a93b8f293b1fa3a4",
+          "startLine": 8,
+          "endLine": 30,
+          "excerptSha256": "aff2bb7ae66e71823604806b76382263a4cccb14d870a2030de2d178532f87d6"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-toad-scheduler",
+          "artifactSetId": "artifact-set-6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe",
+          "artifactSetIdentityDigest": "6a338a2267a0676b90f0c4cb70889b62be9814e3f2738bbe434485d36a099f26",
+          "artifactSetRecordDigest": "0f57ff64c753d80aaf6dba041864957a026fb97f257dcb0507150a5d408feecd",
+          "artifactId": "artifact-26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f85",
+          "artifactIdentityDigest": "26627d9b4645e93cd5f82df6271e3fe2b3fed96d66309f851b88e7fac201a5e6",
+          "artifactRecordDigest": "96ef0ba0ea2666cf0301de9897624a59d213238e90f18953e4668703cd57bc0b",
+          "contentSha256": "cfe9808ecce3f7358d2608e16897e20862eef63f34e4c236a93b8f293b1fa3a4",
+          "startLine": 202,
+          "endLine": 205,
+          "excerptSha256": "87205a3af8e296b30079931e98ae7216196d9db71ad02b47075889be053d5b0a"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-5cfea5dd7fa659a28aad4292883f0dfba0e670de9c7b4599",
+      "claimDigest": "5cfea5dd7fa659a28aad4292883f0dfba0e670de9c7b4599de68636f19dbd92f",
+      "candidateId": "jobs-trigger-dev",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-d62dd0dc3042bf3ef7f5734269c0166b555b9acf"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-trigger-dev",
+          "artifactSetId": "artifact-set-384161262d8849b094c3f0f7da7429ce1ae704c8c467c8d6",
+          "artifactSetIdentityDigest": "384161262d8849b094c3f0f7da7429ce1ae704c8c467c8d6db843ee1a2d48e98",
+          "artifactSetRecordDigest": "53c40ab26234498ce3846f4812b59f3f52879433cabf72447bea81bbd055bba3",
+          "artifactId": "artifact-2e9782a9bf9e3aedbbae7eba4d3c490cd37bde8b5acf1caa",
+          "artifactIdentityDigest": "2e9782a9bf9e3aedbbae7eba4d3c490cd37bde8b5acf1caad6df909be25c9c19",
+          "artifactRecordDigest": "b312a3c2a280769bed795e4f3273fd01eae7022b7cf17140f496c8343c848328",
+          "contentSha256": "e19bf177133e9bcd95b7f0e6c350693f6ed0e79b056001ecd106cbe89546aa62",
+          "startLine": 87,
+          "endLine": 103,
+          "excerptSha256": "9d4932fd9843a54b0b6cbde4a41fc94d421458e802e6236967ddcddfcac68173"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-e1aff5e4a75a63afea082c4b2724331eb98b69dc4a340fd5",
+      "claimDigest": "e1aff5e4a75a63afea082c4b2724331eb98b69dc4a340fd541e2fd664eca8891",
+      "candidateId": "jobs-trigger-dev",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-d62dd0dc3042bf3ef7f5734269c0166b555b9acf"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-trigger-dev",
+          "artifactSetId": "artifact-set-384161262d8849b094c3f0f7da7429ce1ae704c8c467c8d6",
+          "artifactSetIdentityDigest": "384161262d8849b094c3f0f7da7429ce1ae704c8c467c8d6db843ee1a2d48e98",
+          "artifactSetRecordDigest": "53c40ab26234498ce3846f4812b59f3f52879433cabf72447bea81bbd055bba3",
+          "artifactId": "artifact-2e9782a9bf9e3aedbbae7eba4d3c490cd37bde8b5acf1caa",
+          "artifactIdentityDigest": "2e9782a9bf9e3aedbbae7eba4d3c490cd37bde8b5acf1caad6df909be25c9c19",
+          "artifactRecordDigest": "b312a3c2a280769bed795e4f3273fd01eae7022b7cf17140f496c8343c848328",
+          "contentSha256": "e19bf177133e9bcd95b7f0e6c350693f6ed0e79b056001ecd106cbe89546aa62",
+          "startLine": 87,
+          "endLine": 103,
+          "excerptSha256": "9d4932fd9843a54b0b6cbde4a41fc94d421458e802e6236967ddcddfcac68173"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-82c1c391bcc567110db8f42d9a5bc8c35d5b493fcbf5e1cd",
+      "claimDigest": "82c1c391bcc567110db8f42d9a5bc8c35d5b493fcbf5e1cd786e59b7227cad56",
+      "candidateId": "jobs-windmill",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-529e9606297ee0b41456a66222f31409d7bc7669"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-windmill",
+          "artifactSetId": "artifact-set-c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793",
+          "artifactSetIdentityDigest": "c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793d3fd5600f26e1282",
+          "artifactSetRecordDigest": "05435bf554200d0051d084abfb56a707a5143fe578beca79b0600162f6d039a4",
+          "artifactId": "artifact-bd170219792ea70487b847ed2b1a3b0d98427891a70f463c",
+          "artifactIdentityDigest": "bd170219792ea70487b847ed2b1a3b0d98427891a70f463ce3d84d1b1dcf2b41",
+          "artifactRecordDigest": "d5fb19468d3081a8eae9047525a925eaf0d9acbafeac7c72b7acc44e0c91e819",
+          "contentSha256": "1e683af9da3a326aa00f52e6313917763672f422e362e791a64775ed1544ae08",
+          "startLine": 145,
+          "endLine": 148,
+          "excerptSha256": "c59fec41f2414dbfe0c7cee973fe10ca2207248627a493acad8dfd294c5a4f9a"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-windmill",
+          "artifactSetId": "artifact-set-c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793",
+          "artifactSetIdentityDigest": "c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793d3fd5600f26e1282",
+          "artifactSetRecordDigest": "05435bf554200d0051d084abfb56a707a5143fe578beca79b0600162f6d039a4",
+          "artifactId": "artifact-bd170219792ea70487b847ed2b1a3b0d98427891a70f463c",
+          "artifactIdentityDigest": "bd170219792ea70487b847ed2b1a3b0d98427891a70f463ce3d84d1b1dcf2b41",
+          "artifactRecordDigest": "d5fb19468d3081a8eae9047525a925eaf0d9acbafeac7c72b7acc44e0c91e819",
+          "contentSha256": "1e683af9da3a326aa00f52e6313917763672f422e362e791a64775ed1544ae08",
+          "startLine": 250,
+          "endLine": 252,
+          "excerptSha256": "9e485dfbbcd1ea25c8695dcb9fe87ff77e5d7aad4118e722461bdee39b3289d2"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-0febc966c4c69f3d5e2ccaab02642f88ed5562becbe9bbba",
+      "claimDigest": "0febc966c4c69f3d5e2ccaab02642f88ed5562becbe9bbba62fc50b4b9198684",
+      "candidateId": "jobs-windmill",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-529e9606297ee0b41456a66222f31409d7bc7669"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-windmill",
+          "artifactSetId": "artifact-set-c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793",
+          "artifactSetIdentityDigest": "c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793d3fd5600f26e1282",
+          "artifactSetRecordDigest": "05435bf554200d0051d084abfb56a707a5143fe578beca79b0600162f6d039a4",
+          "artifactId": "artifact-bd170219792ea70487b847ed2b1a3b0d98427891a70f463c",
+          "artifactIdentityDigest": "bd170219792ea70487b847ed2b1a3b0d98427891a70f463ce3d84d1b1dcf2b41",
+          "artifactRecordDigest": "d5fb19468d3081a8eae9047525a925eaf0d9acbafeac7c72b7acc44e0c91e819",
+          "contentSha256": "1e683af9da3a326aa00f52e6313917763672f422e362e791a64775ed1544ae08",
+          "startLine": 145,
+          "endLine": 148,
+          "excerptSha256": "c59fec41f2414dbfe0c7cee973fe10ca2207248627a493acad8dfd294c5a4f9a"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "jobs-windmill",
+          "artifactSetId": "artifact-set-c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793",
+          "artifactSetIdentityDigest": "c5e4b5b68e9b6904d7a8359b6307fedb08bdf00a9a1b8793d3fd5600f26e1282",
+          "artifactSetRecordDigest": "05435bf554200d0051d084abfb56a707a5143fe578beca79b0600162f6d039a4",
+          "artifactId": "artifact-bd170219792ea70487b847ed2b1a3b0d98427891a70f463c",
+          "artifactIdentityDigest": "bd170219792ea70487b847ed2b1a3b0d98427891a70f463ce3d84d1b1dcf2b41",
+          "artifactRecordDigest": "d5fb19468d3081a8eae9047525a925eaf0d9acbafeac7c72b7acc44e0c91e819",
+          "contentSha256": "1e683af9da3a326aa00f52e6313917763672f422e362e791a64775ed1544ae08",
+          "startLine": 196,
+          "endLine": 210,
+          "excerptSha256": "f70143ed9532acb02ca6b083a45d0563a537b22b8a10f730d9d7add0b8659284"
+        }
+      ],
+      "reviewedAt": "2026-08-25T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
       "claimId": "reviewed-claim-36759783567e5cc761f815a4255d2faf0541ef69f3778ef9",
       "claimDigest": "36759783567e5cc761f815a4255d2faf0541ef69f3778ef91f8ead4e06e0a627",
       "candidateId": "rate-apisix",
@@ -2100,5 +4256,5 @@
       "admissions": []
     }
   ],
-  "semanticAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9"
+  "semanticAuthorityDigest": "e41f8f4855ca16d7e3c66a773f18136e3eb11d843c58170ae1acaa3b61ecbac9"
 }
