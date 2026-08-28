@@ -37,9 +37,9 @@ import {
 import type { CapabilityFamily, PublicCatalog } from './types.ts';
 
 export const ACCEPTED_OFFLINE_PROFILE_AUTHORITY_DIGEST =
-  'fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879' as const;
+  '9845ff004c83879de423a566ba906f033a83f7338fca9fc38b6324feffd07bdd' as const;
 export const ACCEPTED_OFFLINE_PROFILE_COVERAGE_DIGEST =
-  'b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17' as const;
+  'cd81889b92797ddd48ee69623e68c7ba1b614c2948a47896c7763c281f5298b1' as const;
 
 export interface ProfileMaterializationCoverageTransition {
   readonly from: 'conflict' | 'known' | 'not-applicable' | 'unknown';

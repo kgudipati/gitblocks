@@ -81,6 +81,13 @@ describe('candidate profile authority command', () => {
     expect(
       optionalPostgresqlClaims.map(({ candidateId }) => candidateId),
     ).toEqual([
+      'auth-authzed-spicedb',
+      'auth-casdoor-casdoor',
+      'auth-express-session',
+      'auth-openfga',
+      'auth-ory-keto',
+      'auth-permify',
+      'auth-warrant',
       'jobs-agenda',
       'jobs-airflow',
       'jobs-dagster',
@@ -95,10 +102,10 @@ describe('candidate profile authority command', () => {
       mode: 'validate',
       profiles: 150,
       known: 600,
-      unknown: 3_183,
+      unknown: 3_123,
       notApplicable: 210,
       conflict: 0,
-      partial: 57,
+      partial: 117,
       complete: 0,
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);

@@ -3,7 +3,7 @@
 This immutable, offline evaluation-only corpus contains 30 retrieval cases and
 20 normalization/adversarial cases, exactly six and four per capability family.
 Its version is `retrieval-evaluation-corpus/1.0.0`, and its semantic digest is
-`3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de`.
+`f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842`.
 
 Blind query records contain no audit classifications or expected outcomes. Case
 classifications live in a separate audit authority that is unavailable through

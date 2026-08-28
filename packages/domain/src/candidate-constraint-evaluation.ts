@@ -454,29 +454,12 @@ function evaluateFieldConceptV2(
   conceptId: string,
 ): CandidateConstraintMatch {
   if (
+    field.fieldId !== 'adoption-unit-type' &&
     field.fieldId !== 'capability-variants-features' &&
     field.fieldId !== 'required-infrastructure' &&
     field.fieldId !== 'optional-infrastructure'
   ) {
-    if (
-      field.fieldId === 'adoption-unit-type' &&
-      'state' in field &&
-      field.state === 'known'
-    ) {
-      return binarySearchString(field.value.conceptIds, conceptId)
-        ? 'match'
-        : 'mismatch';
-    }
-    if (
-      field.fieldId === 'adoption-unit-type' &&
-      'state' in field &&
-      (field.state === 'unknown' || field.state === 'conflict')
-    ) {
-      return 'unresolved';
-    }
-    return field.fieldId === 'adoption-unit-type' && 'state' in field
-      ? 'mismatch'
-      : 'unresolved';
+    return 'unresolved';
   }
   if (field.legacyWholeFieldConflict !== undefined) return 'unresolved';
   const assertion = binarySearchAssertion(field.assertions, conceptId);
@@ -601,20 +584,4 @@ function binarySearchAssertion(
     else high = middle - 1;
   }
   return null;
-}
-
-function binarySearchString(
-  values: readonly string[],
-  expected: string,
-): boolean {
-  let low = 0;
-  let high = values.length - 1;
-  while (low <= high) {
-    const middle = (low + high) >>> 1;
-    const value = values[middle];
-    if (value === expected) return true;
-    if (value !== undefined && value < expected) low = middle + 1;
-    else high = middle - 1;
-  }
-  return false;
 }

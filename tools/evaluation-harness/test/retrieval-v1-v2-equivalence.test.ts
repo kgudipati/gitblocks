@@ -36,6 +36,7 @@ interface EquivalenceEvidence {
   readonly laneCountMatches: number;
   readonly finalistIdMatches: number;
   readonly responsibleOutcomeClassMatches: number;
+  readonly differences: readonly string[];
   readonly serializedDigest: string;
 }
 
@@ -125,6 +126,7 @@ beforeAll(() => {
   let laneCountMatches = 0;
   let finalistIdMatches = 0;
   let responsibleOutcomeClassMatches = 0;
+  const differences: string[] = [];
 
   for (const bundle of loadedCorpus.corpus.retrievalCases) {
     const v2LaneCounts = { eligible: 0, 'evidence-needed': 0, excluded: 0 };
@@ -155,6 +157,9 @@ beforeAll(() => {
       const actual = evaluationProjection(v2.value);
       if (retrievalStableJson(equivalent) !== retrievalStableJson(actual)) {
         mismatches += 1;
+        differences.push(
+          `evaluation:${bundle.query.caseId}:${profile.candidateId}`,
+        );
       }
       const negativeControl = catalogStatus(profile) === 'negative-control';
       const lane = laneFor(v2.value, negativeControl);
@@ -167,6 +172,9 @@ beforeAll(() => {
         expected.lane !== lane
       ) {
         mismatches += 1;
+        differences.push(
+          `accepted-projection:${bundle.query.caseId}:${profile.candidateId}`,
+        );
       }
       serializedDecisions.push({
         caseId: bundle.query.caseId,
@@ -182,6 +190,7 @@ beforeAll(() => {
       laneCountMatches += 1;
     } else {
       mismatches += 1;
+      differences.push(`lane-counts:${bundle.query.caseId}`);
     }
     const request = createRequest(safe.profiles);
     const nativeV2Request = createRequest(parsedNativeV2.value);
@@ -249,6 +258,7 @@ beforeAll(() => {
       finalistIdMatches += 1;
     } else {
       mismatches += 1;
+      differences.push(`finalists:${bundle.query.caseId}`);
     }
     const v1Class = responsibleOutcomeClass(
       currentV1.result.preRetrievalLaneCounts,
@@ -257,7 +267,10 @@ beforeAll(() => {
       projectedV2.result.preRetrievalLaneCounts,
     );
     if (v1Class === v2Class) responsibleOutcomeClassMatches += 1;
-    else mismatches += 1;
+    else {
+      mismatches += 1;
+      differences.push(`outcome-class:${bundle.query.caseId}`);
+    }
     serializedDecisions.push({
       caseId: bundle.query.caseId,
       currentV1: v1Retrieval,
@@ -273,24 +286,38 @@ beforeAll(() => {
     laneCountMatches,
     finalistIdMatches,
     responsibleOutcomeClassMatches,
+    differences,
     serializedDigest: createHash('sha256')
       .update(retrievalStableJson(serializedDecisions))
       .digest('hex'),
   };
 }, 120_000);
 
-describe('zero-curation native V2 equivalence to the current V1 authority', () => {
-  it('matches every decision, evaluation item, lane, finalist, and outcome class', () => {
+describe('reviewed-curation native V2 divergence from the current V1 authority', () => {
+  it('keeps every intentional difference bounded to the curated authorization case', () => {
+    expect(evidence.differences).toEqual([
+      'evaluation:ret-authorization-03:auth-aserto-topaz',
+      'evaluation:ret-authorization-03:auth-casbin-casbin',
+      'evaluation:ret-authorization-03:auth-casbin-casbin-js',
+      'evaluation:ret-authorization-03:auth-casbin-node-casbin',
+      'evaluation:ret-authorization-03:auth-casdoor-casdoor',
+      'evaluation:ret-authorization-03:auth-koa-roles',
+      'evaluation:ret-authorization-03:auth-oso',
+      'evaluation:ret-authorization-03:auth-permify',
+      'evaluation:ret-authorization-03:auth-warrant',
+      'evaluation:ret-authorization-03:auth-zitadel',
+      'finalists:ret-authorization-03',
+    ]);
     expect(evidence).toMatchObject({
       decisionsCompared: 4_500,
-      mismatches: 0,
+      mismatches: 11,
       laneCountMatches: 30,
-      finalistIdMatches: 30,
+      finalistIdMatches: 29,
       responsibleOutcomeClassMatches: 30,
     });
     expect(evidence.perConstraintComparisons).toBeGreaterThanOrEqual(4_500);
     expect(evidence.serializedDigest).toBe(
-      '37963e5bec0b03d202fb5d422b16ceb6f845947bdea058a4143375802895733e',
+      '1c804265c8f583c78e27b04dbfbf220d7d1e052d007bd19c790c32db7e92d948',
     );
   });
 });

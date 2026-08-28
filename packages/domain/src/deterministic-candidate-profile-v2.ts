@@ -37,6 +37,7 @@ export const DETERMINISTIC_PROFILE_RULES_VERSION_V2 =
   'deterministic-candidate-profile-rules/2.0.0' as const;
 
 export const DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS = Object.freeze([
+  'adoption-unit-type',
   'capability-variants-features',
   'required-infrastructure',
   'optional-infrastructure',
@@ -405,6 +406,7 @@ export function isConceptAssertionFieldId(
   fieldId: DeterministicProfileFieldId,
 ): fieldId is DeterministicProfileConceptAssertionFieldId {
   return (
+    fieldId === 'adoption-unit-type' ||
     fieldId === 'capability-variants-features' ||
     fieldId === 'required-infrastructure' ||
     fieldId === 'optional-infrastructure'
@@ -485,11 +487,13 @@ function validateConceptFieldV2(
   index: number,
 ): void {
   const path = `$.fields[${String(index)}]`;
+  const candidateWide =
+    field.fieldId === 'adoption-unit-type' ||
+    field.fieldId === 'capability-variants-features';
   if (
     field.scope !== expectedScope ||
-    (field.fieldId === 'capability-variants-features' &&
-      field.versionScope !== null) ||
-    (field.fieldId !== 'capability-variants-features' &&
+    (candidateWide && field.versionScope !== null) ||
+    (!candidateWide &&
       field.coverage !== 'unknown' &&
       field.versionScope === null) ||
     (field.coverage === 'unknown' && field.assertions.length !== 0) ||

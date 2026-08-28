@@ -18,7 +18,7 @@ The generated authority contains 85 concepts, 132 active resolved aliases, 11
 intentional ambiguity records, and 26 adjacent or excluded term records. The
 live V1 authority has no deprecated aliases; deprecation remains supported and
 validated for future authority versions. The semantic digest is
-`838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`.
+`8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e`.
 
 Canonical concept IDs and lookup keys use only lowercase ASCII letters,
 digits, and hyphens and are at most 64 characters. Display labels are bounded

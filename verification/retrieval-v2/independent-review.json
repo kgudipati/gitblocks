@@ -76,9 +76,9 @@
     "reviewedCases": 30,
     "reviewedJudgments": 636
   },
-  "semanticDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+  "semanticDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
   "sourceAuthority": {
-    "corpusSemanticDigest": "3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de",
+    "corpusSemanticDigest": "f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842",
     "corpusVersion": "retrieval-evaluation-corpus/1.0.0"
   }
 }

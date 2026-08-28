@@ -12,7 +12,7 @@
   },
   "corpus": {
     "id": "retrieval-v1",
-    "semanticDigest": "3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de",
+    "semanticDigest": "f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842",
     "version": "retrieval-evaluation-corpus/1.0.0"
   },
   "equivalenceAuthority": {
@@ -542,7 +542,7 @@
           }
         }
       ],
-      "predictionSetDigest": "fcb1aa2ad3f48835dc75e30f59ae1482ca273aab854eb71e579454a67db59210",
+      "predictionSetDigest": "e75936c4c2fa0d3db2a716250ff8ea6bd75850688c395a79ab0226840fe9a109",
       "predictionSetId": "retrieval-family-only-baseline-predictions",
       "safety": {
         "hardFilterErrors": 0,
@@ -552,7 +552,7 @@
           "negativeControl": 0
         }
       },
-      "scoreReportDigest": "94e9c9687c798ada2864d40929d921b7dffc38bb9da1bde048be49529518c656",
+      "scoreReportDigest": "6b8f22016245d4be72e724d6ccceced0687835b3251b4ae741d5ee1198a475c8",
       "sharedNormalizationComponent": true
     },
     {
@@ -1075,7 +1075,7 @@
           }
         }
       ],
-      "predictionSetDigest": "06b588add9f27c0f30e6c32491a2341f64d6f66df1537f6b31d99555968e4ffe",
+      "predictionSetDigest": "382a694432df260ec4088da8577edf00693266f200218aa049c3bb15dd4e31eb",
       "predictionSetId": "retrieval-exact-keyword-baseline-predictions",
       "safety": {
         "hardFilterErrors": 0,
@@ -1085,7 +1085,7 @@
           "negativeControl": 0
         }
       },
-      "scoreReportDigest": "64fb8fc9258ed54eb49aa9966c7b538bbd7c51881fd8996c98e6653f9a9a054c",
+      "scoreReportDigest": "86d2af22575b4eb85470ac0b596121f951224a39de04d215a9400fe8d9944034",
       "sharedNormalizationComponent": true
     },
     {
@@ -1608,7 +1608,7 @@
           }
         }
       ],
-      "predictionSetDigest": "47024301697d758d436d578939bfdd35b9424a3a343b7c6be9a05a9b4e04815e",
+      "predictionSetDigest": "95936c4d6d9d154f05ef36754a551eda9019c083c63da086ea9ae9911de9286c",
       "predictionSetId": "retrieval-alias-expanded-baseline-predictions",
       "safety": {
         "hardFilterErrors": 0,
@@ -1618,23 +1618,23 @@
           "negativeControl": 0
         }
       },
-      "scoreReportDigest": "e850625d4507b5648963590e5a8876bacb28099c004d0086e71de743775e15aa",
+      "scoreReportDigest": "35f89b105c9f92adc46f23a32d99648feb8a753602f03b4a3e447aa82c4ee96c",
       "sharedNormalizationComponent": true
     }
   ],
   "profileAuthority": {
     "authoritySchemaDigest": "7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf",
-    "coverageReportDigest": "b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17",
+    "coverageReportDigest": "cd81889b92797ddd48ee69623e68c7ba1b614c2948a47896c7763c281f5298b1",
     "coverageReportVersion": "deterministic-profile-coverage-report/1.0.0",
     "profileSchemaDigest": "3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61",
-    "semanticDigest": "fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879",
+    "semanticDigest": "9845ff004c83879de423a566ba906f033a83f7338fca9fc38b6324feffd07bdd",
     "version": "deterministic-candidate-profile-authority/1.0.0"
   },
   "querySchemas": {
     "inputDigest": "d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b",
     "normalizationResultDigest": "bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b"
   },
-  "reportSemanticDigest": "6a16353159fb2e30e424ee20fb2e4eeda640ae2248a50580fd162ab012ddf1ed",
+  "reportSemanticDigest": "27c74b00833b3d04932052da4e6c60dac1203728744b916db011bb32e0da223c",
   "reportVersion": "retrieval-baseline-report/1.0.0",
   "safetyControls": [
     {
@@ -2157,7 +2157,7 @@
           }
         }
       ],
-      "predictionSetDigest": "21a6807b426e7814b8f501ea88f5da8dec855e9e91e8383bfbdec87b79ff0d47",
+      "predictionSetDigest": "a3a11dc05be972a4e7f344ae1b26398bc9ecc0f9f5596325900da5873fd3d6ba",
       "predictionSetId": "retrieval-constraint-violating-control-predictions",
       "safety": {
         "hardFilterErrors": 55,
@@ -2167,7 +2167,7 @@
           "negativeControl": 30
         }
       },
-      "scoreReportDigest": "5eb4e1b5379b97a1cc112b7fb136ea7b5366e8910a3ac3b348bf0fa363fe8660",
+      "scoreReportDigest": "f7c2a13fe09f01ef1af427cb876238ed21bf83a07bf61f0d934aa95210973196",
       "sharedNormalizationComponent": true
     }
   ],
@@ -2234,7 +2234,7 @@
     }
   ],
   "taxonomy": {
-    "semanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+    "semanticDigest": "8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e",
     "version": "1.0.0"
   },
   "toolchain": {
@@ -2762,7 +2762,7 @@
           }
         }
       ],
-      "predictionSetDigest": "25b7b145e5b97c376174639a3fa370d6d91048452e3271bee322401dcd8639cb",
+      "predictionSetDigest": "99559eac877b7bbd4669be20fb59822f8c8d0368b87f41ea3539b21099667a75",
       "predictionSetId": "retrieval-always-abstain-control-predictions",
       "safety": {
         "hardFilterErrors": 0,
@@ -2772,7 +2772,7 @@
           "negativeControl": 0
         }
       },
-      "scoreReportDigest": "ccde6446fe68def7c7f3099cdc14348f7d152b3241ff0b3f88472f93b636f7b9",
+      "scoreReportDigest": "5d5058c30689e52078df1c88c581176ceb5cd4816b24931a0116b325e45b664c",
       "sharedNormalizationComponent": true
     }
   ]

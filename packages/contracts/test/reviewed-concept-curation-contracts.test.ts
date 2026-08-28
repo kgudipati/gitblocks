@@ -52,6 +52,36 @@ describe('reviewed concept curation V2 contracts', () => {
     });
   });
 
+  it('admits candidate-lineage architecture claims and rejects exact-version architecture claims', () => {
+    const architecture = claim({
+      candidateId: 'candidate-a',
+      fieldId: 'adoption-unit-type',
+      conceptId: 'full-policy-engine',
+      state: 'absent',
+      claimScope: { kind: 'candidate-lineage' },
+    });
+    expect(
+      parseReviewedConceptCurationAuthorityV2(authorityWith([architecture])).ok,
+    ).toBe(true);
+
+    const exact = claim({
+      candidateId: 'candidate-a',
+      fieldId: 'adoption-unit-type',
+      conceptId: 'full-policy-engine',
+      state: 'absent',
+      claimScope: {
+        kind: 'exact-version',
+        versionScope: {
+          kind: 'repository-snapshot',
+          snapshotId: 'snapshot-a',
+        },
+      },
+    });
+    expect(
+      parseReviewedConceptCurationAuthorityV2(authorityWithRaw([exact])).ok,
+    ).toBe(false);
+  });
+
   it('rejects artifact IDs without all immutable digests, mutable URLs, and ranges over 80 lines', () => {
     const accepted = claim({
       candidateId: 'candidate-a',

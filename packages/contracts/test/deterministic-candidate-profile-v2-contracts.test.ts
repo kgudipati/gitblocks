@@ -78,11 +78,12 @@ describe('DeterministicCandidateProfileAuthorityV2', () => {
     expect(parseDeterministicCandidateProfileAuthorityV2(v2).ok).toBe(true);
   }, 120_000);
 
-  it('keeps exactly three native assertion fields and the other 24 V1 field shapes', () => {
+  it('keeps exactly four native assertion fields and the other 23 V1 field shapes', () => {
     const profile = v2.profiles[0];
     expect(profile).toBeDefined();
     const native = profile?.fields.filter((field) => 'coverage' in field) ?? [];
     expect(native.map(({ fieldId }) => fieldId)).toEqual([
+      'adoption-unit-type',
       'capability-variants-features',
       'required-infrastructure',
       'optional-infrastructure',
@@ -230,6 +231,7 @@ function projectNativeField(
 ): DeterministicProfileFieldRecordV2 {
   const record = field as unknown as Record<string, unknown>;
   if (
+    record['fieldId'] !== 'adoption-unit-type' &&
     record['fieldId'] !== 'capability-variants-features' &&
     record['fieldId'] !== 'required-infrastructure' &&
     record['fieldId'] !== 'optional-infrastructure'
@@ -269,6 +271,7 @@ function profileInput(
 function replaceField(
   input: DeterministicCandidateProfileInputV2,
   fieldId:
+    | 'adoption-unit-type'
     | 'capability-variants-features'
     | 'optional-infrastructure'
     | 'required-infrastructure',

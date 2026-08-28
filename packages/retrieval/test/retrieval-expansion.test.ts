@@ -135,7 +135,7 @@ function source(): CapabilityRetrievalExpansionSourceV1 & {
     expansionVersion: 'capability-retrieval-expansion/1.0.0',
     taxonomyVersion: '1.0.0',
     taxonomySemanticDigest:
-      '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
+      '8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e',
     includeActiveTaxonomyAliases: true,
     rules: [
       {

@@ -80,7 +80,7 @@ export interface CandidateProfileCoverageReportV2 {
   };
   readonly perConceptField: readonly {
     readonly fieldId: DeterministicProfileConceptAssertionFieldId;
-    readonly taxonomyKind: 'feature' | 'infrastructure';
+    readonly taxonomyKind: 'architecture' | 'feature' | 'infrastructure';
     readonly coverage: ConceptCoverageCounts;
     readonly fullyPopulated: number;
     readonly conceptPairs: ConceptPairCounts;
@@ -209,7 +209,7 @@ function generateConceptField(
   if (all.length === 0) return unknownConceptField(fieldId);
   let claims = all;
   let versionScope: DeterministicProfileVersionScope | null = null;
-  if (fieldId !== 'capability-variants-features') {
+  if (!isCandidateWideConceptField(fieldId)) {
     const distinctScopes = new Map(
       all.map((entry) => [scopeText(entry.versionScope), entry.versionScope]),
     );
@@ -245,10 +245,9 @@ function generateConceptField(
     );
   return {
     fieldId,
-    scope:
-      fieldId === 'capability-variants-features'
-        ? 'candidate-wide'
-        : 'version-specific',
+    scope: isCandidateWideConceptField(fieldId)
+      ? 'candidate-wide'
+      : 'version-specific',
     coverage: 'partial',
     stateReasonCode: 'approved-structured-field-value',
     stateRuleId: 'assign-known-approved-structured-value',
@@ -321,10 +320,9 @@ function unknownConceptField(
 ): DeterministicProfileConceptFieldRecordV2 {
   return {
     fieldId,
-    scope:
-      fieldId === 'capability-variants-features'
-        ? 'candidate-wide'
-        : 'version-specific',
+    scope: isCandidateWideConceptField(fieldId)
+      ? 'candidate-wide'
+      : 'version-specific',
     coverage: 'unknown',
     stateReasonCode: 'requires-reviewed-curator-classification',
     stateRuleId: 'assign-unknown-reviewed-classification-missing',
@@ -357,9 +355,11 @@ export function buildCandidateProfileCoverageReportV2(
   const perConceptField = DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS.map(
     (fieldId) => {
       const taxonomyKind =
-        fieldId === 'capability-variants-features'
-          ? ('feature' as const)
-          : ('infrastructure' as const);
+        fieldId === 'adoption-unit-type'
+          ? ('architecture' as const)
+          : fieldId === 'capability-variants-features'
+            ? ('feature' as const)
+            : ('infrastructure' as const);
       const concepts = taxonomy.concepts.filter(
         (concept) => concept.kind === taxonomyKind,
       );
@@ -418,7 +418,12 @@ export function buildCandidateProfileCoverageReportV2(
   );
   const uniqueTaxonomyConcepts = new Set(
     taxonomy.concepts
-      .filter(({ kind }) => kind === 'feature' || kind === 'infrastructure')
+      .filter(
+        ({ kind }) =>
+          kind === 'architecture' ||
+          kind === 'feature' ||
+          kind === 'infrastructure',
+      )
       .map(({ conceptId }) => conceptId),
   );
   const assertedConcepts = new Set(
@@ -547,6 +552,15 @@ function isConceptFieldId(
 ): fieldId is DeterministicProfileConceptAssertionFieldId {
   return DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS.includes(
     fieldId as DeterministicProfileConceptAssertionFieldId,
+  );
+}
+
+function isCandidateWideConceptField(
+  fieldId: DeterministicProfileConceptAssertionFieldId,
+): boolean {
+  return (
+    fieldId === 'adoption-unit-type' ||
+    fieldId === 'capability-variants-features'
   );
 }
 

@@ -9,13 +9,13 @@ const ACCEPTED_BYTES = {
   '.github/workflows/ci.yml':
     '9132cbb3d598664db90073863cc754821e3bed7b2fbf3e4f71e53027c2b8f31d',
   'catalog/public-v1/candidate-profile-authority.json':
-    '20394e3e7cbec698714f41bdb35d6073e17d9eb2e82d121b952d539cddc8be8d',
+    '9bb38d297df247c2d00acf4ce45a5e52b72c78177d128138e2fc1d4151477230',
   'catalog/public-v1/candidates.json':
     '07d572ceaeb760acc7443b4d1736e77a6790018bb7a7fae9e006b6f2cd59446f',
   'catalog/public-v1/manifest.json':
     '1209e94d17041691d9766eeedb699bc5303ec075d166eb7ef4dff9e35d112f94',
   'packages/contracts/src/deterministic-candidate-profile-schemas.ts':
-    '3ca58c72537e5cc8354c56cf165fc3c89e0f5c8f85ee4a96047be26275216985',
+    'f2fcde9b9749ec22c4421e3de2961b4aeb60e080bcdaadf8f89d135669847ecc',
   'packages/domain/src/deterministic-candidate-profile.ts':
     'c019b67b3a436f64fc440b0152bfc98f575ae1d6fa62ae5479b5257e3462dbce',
   'packages/persistence/migrations/0001_evidence_persistence.sql':
@@ -29,7 +29,7 @@ const ACCEPTED_BYTES = {
   'pnpm-lock.yaml':
     '36fb9579f09af54aac8ed0600fd1966710e6796caeecf58aeaba46191888a707',
   'verification/retrieval-v1/profile-coverage.json':
-    'e40137bc8b1e8b978a4e3008b876d1a284de0eca61daeda841c6492bdb24eaf8',
+    'a1c0427ac4e0c4997204aab74ddcef8713eecf674b907eab139b057c82c54cb6',
 } as const;
 
 const MATERIALIZATION_IMPLEMENTATION = [

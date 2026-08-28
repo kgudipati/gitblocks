@@ -120,9 +120,11 @@ export function acceptReviewedConceptCurationAuthorityV2(input: {
     const candidate = catalogById.get(claim.candidateId);
     const concept = taxonomyById.get(claim.conceptId);
     const expectedKind =
-      claim.fieldId === 'capability-variants-features'
-        ? 'feature'
-        : 'infrastructure';
+      claim.fieldId === 'adoption-unit-type'
+        ? 'architecture'
+        : claim.fieldId === 'capability-variants-features'
+          ? 'feature'
+          : 'infrastructure';
     if (
       candidate === undefined ||
       concept?.kind !== expectedKind ||
@@ -147,7 +149,10 @@ export function acceptReviewedConceptCurationAuthorityV2(input: {
         admission: null,
         versionScope: claim.claimScope.versionScope,
       });
-    } else if (claim.fieldId === 'capability-variants-features') {
+    } else if (
+      claim.fieldId === 'adoption-unit-type' ||
+      claim.fieldId === 'capability-variants-features'
+    ) {
       accepted.push({ claim, admission: null, versionScope: null });
     } else {
       for (const admission of claim.admissions) {

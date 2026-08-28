@@ -91,27 +91,27 @@ describe('native deterministic candidate profile V2 generation', () => {
       profiles: 150,
       fieldsPerProfile: 27,
       candidateFieldCells: 4_050,
-      nonConceptFieldCells: 3_600,
+      nonConceptFieldCells: 3_450,
       nonConceptStates: {
         known: 600,
-        unknown: 2_790,
+        unknown: 2_640,
         notApplicable: 210,
         conflict: 0,
       },
-      conceptFieldCells: 450,
-      conceptFieldCoverage: { unknown: 450, partial: 0, complete: 0 },
+      conceptFieldCells: 600,
+      conceptFieldCoverage: { unknown: 600, partial: 0, complete: 0 },
       fullyPopulatedConceptFields: 0,
       conceptPairs: {
-        total: 3_060,
+        total: 3_960,
         present: 0,
         absent: 0,
         conflicting: 0,
-        unaddressed: 3_060,
+        unaddressed: 3_960,
       },
       taxonomyConcepts: {
-        total: 45,
+        total: 75,
         withAnyAssertion: 0,
-        unaddressed: 45,
+        unaddressed: 75,
       },
     });
     expect(generated.coverage.hardConstraintDemand).toEqual({
@@ -121,6 +121,11 @@ describe('native deterministic candidate profile V2 generation', () => {
       reasonCode: 'product-demand-authority-not-bound',
     });
     expect(generated.coverage.perConceptField).toEqual([
+      expect.objectContaining({
+        fieldId: 'adoption-unit-type',
+        fullyPopulated: 0,
+        coverage: { unknown: 150, partial: 0, complete: 0 },
+      }),
       expect.objectContaining({
         fieldId: 'capability-variants-features',
         fullyPopulated: 0,
@@ -178,7 +183,7 @@ describe('native deterministic candidate profile V2 generation', () => {
     });
     expect(generated.coverage.totals.fullyPopulatedConceptFields).toBe(0);
     expect(generated.coverage.totals.conceptFieldCoverage).toEqual({
-      unknown: 449,
+      unknown: 599,
       partial: 1,
       complete: 0,
     });
@@ -202,6 +207,37 @@ describe('native deterministic candidate profile V2 generation', () => {
         { curationMaterial: { artifactMaterial: [material] } },
       ),
     ).toThrow();
+  });
+
+  it('projects reviewed architecture claims into candidate-wide adoption-unit assertions', () => {
+    const material = artifactMaterial();
+    const reviewed = claim({
+      fieldId: 'adoption-unit-type',
+      conceptId: 'audit-event-emitter',
+      state: 'present',
+      claimScope: { kind: 'candidate-lineage' },
+      basisReferences: [artifactBasis(material, 1, 2)],
+    });
+    const generated = buildCandidateProfileArtifactsV2(
+      catalog,
+      taxonomy,
+      curation([reviewed]),
+      { curationMaterial: { artifactMaterial: [material] } },
+    );
+
+    expect(
+      conceptField(generated.authority, 'audit-bunyan', 'adoption-unit-type'),
+    ).toMatchObject({
+      scope: 'candidate-wide',
+      coverage: 'partial',
+      versionScope: null,
+      assertions: [
+        {
+          conceptId: 'audit-event-emitter',
+          state: 'present',
+        },
+      ],
+    });
   });
 
   it('requires and references an exact-scope admission for infrastructure lineage claims', () => {

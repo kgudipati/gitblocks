@@ -23,7 +23,7 @@ describe('retrieval-v1 corpus', () => {
     expect(corpus.normalizationCases).toHaveLength(20);
     expect(corpus.manifest.corpusVersion).toBe(RETRIEVAL_VERSIONS.corpus);
     expect(corpus.manifest.corpusSemanticDigest).toBe(
-      '3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de',
+      'f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842',
     );
     expect(corpus.manifest.files).toHaveLength(212);
     expect(corpus.manifest.familyCounts).toEqual({

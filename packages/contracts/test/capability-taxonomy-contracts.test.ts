@@ -65,7 +65,7 @@ describe('capability taxonomy contracts', () => {
       contractVersion: '1.0.0',
       taxonomyVersion: '1.0.0',
       semanticDigest:
-        '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
+        '8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e',
     });
     expect(buildCapabilityTaxonomyV1(source)).toEqual(manifest);
     expect(serializeCapabilityTaxonomyV1(manifest)).toBe(
@@ -312,7 +312,7 @@ describe('capability taxonomy contracts', () => {
         ]),
       ),
     ).toEqual({
-      authorization: { architectures: 6, features: 7 },
+      authorization: { architectures: 7, features: 7 },
       'audit-logging': { architectures: 6, features: 7 },
       'background-jobs': { architectures: 6, features: 8 },
       'rate-limiting': { architectures: 5, features: 9 },

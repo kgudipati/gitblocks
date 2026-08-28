@@ -112,6 +112,16 @@
       "replacementConceptId": null
     },
     {
+      "conceptId": "full-policy-engine",
+      "kind": "architecture",
+      "displayLabel": "Full policy engine",
+      "definition": "An adoption form that includes or requires a configurable authorization engine that evaluates a general policy model or policy language.",
+      "applicableFamilyIds": ["authorization"],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
       "conceptId": "role-based-access-control",
       "kind": "feature",
       "displayLabel": "Role-based access control",
@@ -972,6 +982,12 @@
     {
       "aliasKey": "relationship-authorization-service",
       "conceptId": "relationship-authorization-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "full-policy-engine",
+      "conceptId": "full-policy-engine",
       "status": "active",
       "replacementAliasKey": null
     },
