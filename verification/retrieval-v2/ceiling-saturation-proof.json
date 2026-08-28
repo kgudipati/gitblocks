@@ -61,11 +61,11 @@
     "saturatedCaseCount": 25
   },
   "authorityBindings": {
-    "baselineReportDigest": "789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140",
+    "baselineReportDigest": "3ea8d00bd2fe09afe23d1989f14d3385d392b515b33ad5c3fd264db69ba7e3d7",
     "baselineReportVersion": "retrieval-baseline-report/2.0.0",
-    "corpusSemanticDigest": "05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c",
+    "corpusSemanticDigest": "2e76715d952b84f3eb124c662ecb0b43acbbe98df1ad5f63b366d5f393a2f84e",
     "corpusVersion": "retrieval-evaluation-corpus/2.0.0",
-    "independentReviewDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "independentReviewDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
     "independentReviewVersion": "retrieval-relevance-independent-review/1.0.0",
     "relevanceVersion": "retrieval-relevance-gold/2.0.0",
     "scorerVersion": "retrieval-evaluation-scorer/1.0.0"
@@ -525,5 +525,5 @@
   "noEligibleCaseCount": 5,
   "positiveCaseCount": 25,
   "proofVersion": "retrieval-ceiling-saturation-proof/1.0.0",
-  "semanticDigest": "4fde078b679dea3c434f77392b4b2f2a5b0c3a477b383d0699024b6414287921"
+  "semanticDigest": "7d6322ba1378eaaff2f1ee18207080d470cd3586b3c674aa3d186d64e7cc58f9"
 }

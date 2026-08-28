@@ -31,11 +31,11 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'deterministic-candidate-profile-authority':
     '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
   'deterministic-candidate-profile-v2':
-    '0d3091137063e66d75eb8cd99f3a43f373733abbf9e5e27b899209b68aafd916',
+    'f100787e3870a6d1efe612fd7dcc0d38d3fb3be5247b6ae76c6fb1260c43f231',
   'deterministic-candidate-profile-authority-v2':
-    'abda0dc2a70236e6a795ea9f0608120053833b3be1e1aa032ec639080315fc2f',
+    'fec6dc9f3830fc4fdf249c07480237344136da4093a4bd16cd21a90abfbbead2',
   'reviewed-concept-curation-authority-v2':
-    '87c6403e207177f95de7162797538aabfcbf9ada021a483f611d5e9814429ddd',
+    '20fd1403b0338308e83809dfe7923d9bcb6514abc894f438b6cbc213c1554cc6',
   'candidate-retrieval-request':
     'c4e89ddcfacb0de0c37d91b5c3c02af979496d504ba836b33c135cddf2bdce36',
   'candidate-retrieval-result':

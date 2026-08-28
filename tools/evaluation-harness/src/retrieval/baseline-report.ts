@@ -19,9 +19,9 @@ import type { RetrievalFixtureOracleSummary } from './synthetic-fixture-oracle.t
 
 const EXPECTED = {
   corpusDigest:
-    '3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de',
+    'f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842',
   taxonomyDigest:
-    '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
+    '8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e',
   queryInputSchemaDigest:
     'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b',
   normalizationSchemaDigest:
@@ -31,9 +31,9 @@ const EXPECTED = {
   profileAuthoritySchemaDigest:
     '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
   profileAuthorityDigest:
-    'fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879',
+    '9845ff004c83879de423a566ba906f033a83f7338fca9fc38b6324feffd07bdd',
   profileCoverageDigest:
-    'b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17',
+    'cd81889b92797ddd48ee69623e68c7ba1b614c2948a47896c7763c281f5298b1',
   catalogDigest:
     '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
 } as const;
@@ -481,7 +481,7 @@ function validateRetrievalBaselineReport(
     report.corpus.semanticDigest !==
       (authorityVersion === 'v1'
         ? EXPECTED.corpusDigest
-        : '05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c') ||
+        : '2e76715d952b84f3eb124c662ecb0b43acbbe98df1ad5f63b366d5f393a2f84e') ||
     report.taxonomy.semanticDigest !== EXPECTED.taxonomyDigest ||
     report.querySchemas.inputDigest !== EXPECTED.queryInputSchemaDigest ||
     report.querySchemas.normalizationResultDigest !==

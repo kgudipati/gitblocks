@@ -201,7 +201,7 @@ describe('candidate retrieval product contracts', () => {
     expect(request.authorityBindings.retrievalExpansion).toEqual({
       authorityVersion: 'capability-retrieval-expansion/1.0.0',
       semanticDigest:
-        '0068e4e007ce87abd3bf80fed0918b04d9f225a0c32a1aa924a1284865c54948',
+        'ca4437840dab1d6ab679696a35315f05762b01361f10c576a75b7f38e1335a53',
     });
     expect(request.authorityBindings.retrievalMetadata).toEqual({
       authorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',

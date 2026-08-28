@@ -285,13 +285,13 @@ describe('profile-materialization fixed filesystem boundary', () => {
       second.sourceAuthority.authoritySemanticDigest,
     );
     expect(first.sourceAuthority.authoritySemanticDigest).toBe(
-      'bc9543ba9e7910939b349f214c312e65ad2546742d0f65e61e93a825cc64f614',
+      '87ab01579dbc9d2fea8c0da50c44f3cdbff31bc94ff50eb64fd900d666bd2ca1',
     );
     expect(first.persistenceProof.proofSemanticDigest).toBe(
-      '4b959ff17e6141166d45209c12a0242fcb2f1eb15ae15d00a81d8999279e9669',
+      'eda1494efc94fe6c07556c34514034792ea0d4b8796b3566050045245126fe9d',
     );
     expect(second.persistenceProof.proofSemanticDigest).toBe(
-      '83f46fefa08e095b01b66cea3c9aed08bdb60a2331eedee4d79f49ee309138b4',
+      'a47c9d14bee3cef747b8eb0db9e98bc13977798ffc19ae243bd03520b207dbdd',
     );
     expect(persistenceProofCounts(first.persistenceProof)).toMatchObject({
       persistedCandidateCount: 150,

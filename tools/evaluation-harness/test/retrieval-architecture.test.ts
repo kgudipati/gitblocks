@@ -196,17 +196,17 @@ describe('retrieval evaluation architecture', () => {
     const root = new URL('../../..', import.meta.url).pathname;
     const expected = {
       'catalog/capability-taxonomy/1.0.0/source.json':
-        'abad6b37466be5a0704f9d397359c7cd033d4776b8a8de662fa406f4ecf0cfa1',
+        'f46efd6941b3f55dc1735b10ee7cb7d41515bb64908054c67489774f450c0cac',
       'catalog/capability-taxonomy/1.0.0/manifest.json':
-        '66d328c04d060e62aa9480c3f5a564334969a3c6421d8b3a51e52a21051e77ba',
+        'a0fa5cfa313d48b3c26ff93379b5290181dc9997263130df4164e5f510e856ac',
       'catalog/public-v1/candidates.json':
         '07d572ceaeb760acc7443b4d1736e77a6790018bb7a7fae9e006b6f2cd59446f',
       'catalog/public-v1/manifest.json':
         '1209e94d17041691d9766eeedb699bc5303ec075d166eb7ef4dff9e35d112f94',
       'catalog/public-v1/candidate-profile-authority.json':
-        '20394e3e7cbec698714f41bdb35d6073e17d9eb2e82d121b952d539cddc8be8d',
+        '9bb38d297df247c2d00acf4ce45a5e52b72c78177d128138e2fc1d4151477230',
       'verification/retrieval-v1/profile-coverage.json':
-        'e40137bc8b1e8b978a4e3008b876d1a284de0eca61daeda841c6492bdb24eaf8',
+        'a1c0427ac4e0c4997204aab74ddcef8713eecf674b907eab139b057c82c54cb6',
       'packages/ingestion/src/candidate-profile-projection.ts':
         '4dd72b224967f5bb886af51c9ca4bb7f71ba50a5608b781d26b261a30cda738f',
       'packages/ingestion/src/profile.ts':
@@ -216,7 +216,7 @@ describe('retrieval evaluation architecture', () => {
       'packages/contracts/src/deterministic-candidate-profile-contracts.ts':
         '3cc00765bb3296d7b0bf6b1f26fb83bc78c5152290e06b2d289f62fef09d7094',
       'packages/contracts/src/deterministic-candidate-profile-schemas.ts':
-        '3ca58c72537e5cc8354c56cf165fc3c89e0f5c8f85ee4a96047be26275216985',
+        'f2fcde9b9749ec22c4421e3de2961b4aeb60e080bcdaadf8f89d135669847ecc',
     } as const;
     for (const [path, digest] of Object.entries(expected)) {
       expect(fileDigest(join(root, path)), path).toBe(digest);

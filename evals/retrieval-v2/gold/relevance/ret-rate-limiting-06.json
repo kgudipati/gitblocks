@@ -5,7 +5,7 @@
       "candidateId": "rate-apisix",
       "grade": 1,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -19,7 +19,7 @@
       "candidateId": "rate-bottleneck",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -33,7 +33,7 @@
       "candidateId": "rate-envoy-ratelimit",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -47,7 +47,7 @@
       "candidateId": "rate-express-rate-limit",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -61,7 +61,7 @@
       "candidateId": "rate-fastify-rate-limit",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -75,7 +75,7 @@
       "candidateId": "rate-go-limiter",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -89,7 +89,7 @@
       "candidateId": "rate-governor",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -103,7 +103,7 @@
       "candidateId": "rate-gravitee",
       "grade": 1,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -117,7 +117,7 @@
       "candidateId": "rate-gubernator",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -131,7 +131,7 @@
       "candidateId": "rate-juju",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -145,7 +145,7 @@
       "candidateId": "rate-koa-ratelimit",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -159,7 +159,7 @@
       "candidateId": "rate-kong",
       "grade": 1,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -173,7 +173,7 @@
       "candidateId": "rate-krakend",
       "grade": 1,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -187,7 +187,7 @@
       "candidateId": "rate-limiters",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -201,7 +201,7 @@
       "candidateId": "rate-nestjs-throttler",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -215,7 +215,7 @@
       "candidateId": "rate-node-rate-limiter-flexible",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -229,7 +229,7 @@
       "candidateId": "rate-node-ratelimiter",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -243,7 +243,7 @@
       "candidateId": "rate-redis-cell",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -257,7 +257,7 @@
       "candidateId": "rate-throttled",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -271,7 +271,7 @@
       "candidateId": "rate-tollbooth",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -285,7 +285,7 @@
       "candidateId": "rate-tyk",
       "grade": 1,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -299,7 +299,7 @@
       "candidateId": "rate-uber-go",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -313,7 +313,7 @@
       "candidateId": "rate-ulule-limiter",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -327,7 +327,7 @@
       "candidateId": "rate-upstash",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -339,7 +339,7 @@
     }
   ],
   "provenance": {
-    "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
     "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
     "reviewReference": "issue-23",
     "reviewStatus": "independently-reviewed",

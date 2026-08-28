@@ -5,7 +5,7 @@
       "candidateId": "audit-bunyan",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -19,7 +19,7 @@
       "candidateId": "audit-cabin",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -33,7 +33,7 @@
       "candidateId": "audit-express-morgan",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -47,7 +47,7 @@
       "candidateId": "audit-fluent-bit",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -61,7 +61,7 @@
       "candidateId": "audit-fluentd",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -75,7 +75,7 @@
       "candidateId": "audit-google-logging-winston",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -89,7 +89,7 @@
       "candidateId": "audit-grafana-loki",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -103,7 +103,7 @@
       "candidateId": "audit-log4js",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -117,7 +117,7 @@
       "candidateId": "audit-logdna-logger",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -131,7 +131,7 @@
       "candidateId": "audit-loglevel",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -145,7 +145,7 @@
       "candidateId": "audit-npm-npmlog",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -159,7 +159,7 @@
       "candidateId": "audit-openobserve",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -173,7 +173,7 @@
       "candidateId": "audit-pgaudit",
       "grade": 3,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -187,7 +187,7 @@
       "candidateId": "audit-pino",
       "grade": 3,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -201,7 +201,7 @@
       "candidateId": "audit-pino-http",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -215,7 +215,7 @@
       "candidateId": "audit-roarr",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -229,7 +229,7 @@
       "candidateId": "audit-sematext-logagent",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -243,7 +243,7 @@
       "candidateId": "audit-syslog-ng",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -257,7 +257,7 @@
       "candidateId": "audit-vector",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -271,7 +271,7 @@
       "candidateId": "audit-winston",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -285,7 +285,7 @@
       "candidateId": "audit-winston-daily",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -299,7 +299,7 @@
       "candidateId": "audit-winston-syslog",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -313,7 +313,7 @@
       "candidateId": "audit-winston-transport",
       "grade": 2,
       "provenance": {
-        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
         "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
         "reviewReference": "issue-23",
         "reviewStatus": "independently-reviewed",
@@ -325,7 +325,7 @@
     }
   ],
   "provenance": {
-    "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "reviewAuthorityDigest": "78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892",
     "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
     "reviewReference": "issue-23",
     "reviewStatus": "independently-reviewed",

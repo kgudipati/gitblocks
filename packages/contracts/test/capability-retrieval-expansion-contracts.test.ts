@@ -62,9 +62,9 @@ describe('capability retrieval expansion authority', () => {
       expansionVersion: 'capability-retrieval-expansion/1.0.0',
       taxonomyVersion: '1.0.0',
       taxonomySemanticDigest:
-        '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
+        '8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e',
       semanticDigest:
-        '0068e4e007ce87abd3bf80fed0918b04d9f225a0c32a1aa924a1284865c54948',
+        'ca4437840dab1d6ab679696a35315f05762b01361f10c576a75b7f38e1335a53',
     });
     expect(authority.edges).toHaveLength(170);
     expect(

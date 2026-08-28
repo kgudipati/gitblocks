@@ -344,6 +344,29 @@ describe('candidate constraint evaluation', () => {
   );
 
   it.each([
+    ['present', 'conflict'],
+    ['absent', 'satisfied'],
+  ] as const)(
+    'evaluates V2 architecture assertion %s without changing prohibited truth semantics',
+    (assertionState, expectedState) => {
+      const result = evaluateV2(
+        evaluatorProfile(
+          conceptField('adoption-unit-type', 'partial', [
+            architectureAssertion('full-policy-engine', assertionState),
+          ]),
+        ),
+        normalization([
+          constraint('architecture', 'full-policy-engine', 'prohibited'),
+        ]),
+      );
+      expect(result.evaluations.at(-1)).toMatchObject({
+        profileFieldId: 'adoption-unit-type',
+        state: expectedState,
+      });
+    },
+  );
+
+  it.each([
     ['present', 'present', 'satisfied', 'satisfied', 'conflict'],
     ['present', 'absent', 'satisfied', 'satisfied', 'conflict'],
     ['present', 'unknown', 'satisfied', 'satisfied', 'conflict'],
@@ -641,17 +664,21 @@ function evaluatorProfile(
 
 function conceptField(
   fieldId:
+    | 'adoption-unit-type'
     | 'capability-variants-features'
     | 'optional-infrastructure'
     | 'required-infrastructure',
   coverage: 'complete' | 'partial' | 'unknown',
   assertions: readonly ReturnType<
-    typeof assertion | typeof conflictingAssertion
+    | typeof architectureAssertion
+    | typeof assertion
+    | typeof conflictingAssertion
   >[],
 ): DeterministicProfileConceptFieldRecordV2 {
   return {
     fieldId,
     scope:
+      fieldId === 'adoption-unit-type' ||
       fieldId === 'capability-variants-features'
         ? 'candidate-wide'
         : 'version-specific',
@@ -665,13 +692,25 @@ function conceptField(
         ? 'assign-unknown-structured-provider-value-missing'
         : 'assign-known-approved-structured-value',
     versionScope:
-      fieldId === 'capability-variants-features' || coverage === 'unknown'
+      fieldId === 'adoption-unit-type' ||
+      fieldId === 'capability-variants-features' ||
+      coverage === 'unknown'
         ? null
         : { kind: 'repository-snapshot', snapshotId: 'snapshot-one' },
     sourceReferences:
       coverage === 'unknown' ? [] : [structured('snapshot-one')],
     assertions,
   } as DeterministicProfileConceptFieldRecordV2;
+}
+
+function architectureAssertion(conceptId: string, state: 'absent' | 'present') {
+  return {
+    conceptId,
+    state,
+    valueExtractionRuleId:
+      'extract-adoption-unit-type-from-structured-authority' as const,
+    sourceReferences: [structured('snapshot-one')],
+  };
 }
 
 function assertion(conceptId: string, state: 'absent' | 'present') {

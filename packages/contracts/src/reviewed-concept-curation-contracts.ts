@@ -65,7 +65,8 @@ export function parseReviewedConceptCurationAuthorityV2(
         claim.basisReferences.length ||
       (claim.claimScope.kind === 'exact-version' &&
         claim.admissions.length !== 0) ||
-      (claim.fieldId === 'capability-variants-features' &&
+      ((claim.fieldId === 'adoption-unit-type' ||
+        claim.fieldId === 'capability-variants-features') &&
         claim.claimScope.kind !== 'candidate-lineage')
     ) {
       issues.push(literalIssue(claimPath));

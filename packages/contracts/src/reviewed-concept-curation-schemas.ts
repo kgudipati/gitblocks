@@ -100,6 +100,7 @@ export const reviewedConceptClaimV2Schema = closedObject({
   claimDigest: digestSchema,
   candidateId: stableIdSchema,
   fieldId: Type.Union([
+    Type.Literal('adoption-unit-type'),
     Type.Literal('capability-variants-features'),
     Type.Literal('required-infrastructure'),
     Type.Literal('optional-infrastructure'),

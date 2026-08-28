@@ -6,15 +6,15 @@ import { describe, expect, it } from 'vitest';
 
 const OPERATIONAL_SCHEMAS = {
   'coverage.schema.json':
-    '79a3147a6e78cd5adc7a19ac06916820c9091e943ee8161695b31eeea67936eb',
+    '75e8dd430bb43df68a412a23afe4918ba3d6cf87d69914f3c9ae7fb04910d6d7',
   'provider-policy.schema.json':
     'deac5cee0d921aabeb013ceecfa0730f878d5bd6cc451cd6fb865cd4257f4458',
   'persistence-proof.schema.json':
     '96974cfd824cc9e14ca1f2e61ffdf4bb8f14edbae5f1c268fb1d92d041f51b96',
   'receipt.schema.json':
-    '53b546ad92e36499a344874d146bd2ffd9c8b0ef340f7a9524d05cb54054e955',
+    '428c32107409fe37c3b988469509be3089db8a58a164dafe51f58739e04075ad',
   'source-authority.schema.json':
-    '8483a9564a668de709180b97868b115a49fe209fc54abe4b1614c88912d6c7ab',
+    '5bdb88a4661e444c8c60cfdb58cee3554ba088ba89a7eaa1a7b5f1b8a9123b85',
 } as const;
 
 describe('profile-materialization operational schemas', () => {

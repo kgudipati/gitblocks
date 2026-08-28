@@ -1143,7 +1143,7 @@ function validateV2Reconciliation(
     v1Manifest.corpusId !== RETRIEVAL_CORPUS_ID ||
     v1Manifest.corpusVersion !== RETRIEVAL_VERSIONS.corpus ||
     v1Manifest.corpusSemanticDigest !==
-      '3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de'
+      'f92eac1a3963c4f52fb135189e82a0196dbccd559af32bc57a6a7e64226eb842'
   ) {
     fail('retrieval.v2.source-binding', 'evals/retrieval-v1/manifest.json');
   }

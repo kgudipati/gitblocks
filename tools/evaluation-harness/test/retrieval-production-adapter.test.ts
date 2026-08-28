@@ -163,14 +163,14 @@ describe('production retrieval evaluation adapter differential authority', () =>
 
   it('preserves the frozen v1 prediction and binds the same product output to v2', () => {
     expect(generated.predictionSet.semanticDigest).toBe(
-      '94313f9b9694bbe7fe5b04307730d8d262236846c3bc8ec01a346f661b56de44',
+      'd15997c65869c819f80697a3fdbd2ae2dbdd938b10bd46926d16e90b0be77799',
     );
     expect(generatedV2.predictionSet).toMatchObject({
       predictionSetVersion: 'retrieval-evaluation-prediction-set/2.0.0',
       corpusId: 'retrieval-v2',
       corpusVersion: 'retrieval-evaluation-corpus/2.0.0',
       corpusSemanticDigest:
-        '05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c',
+        '2e76715d952b84f3eb124c662ecb0b43acbbe98df1ad5f63b366d5f393a2f84e',
     });
     expect(retrievalStableJson(generated.predictionSet.predictions)).toBe(
       retrievalStableJson(generatedV2.predictionSet.predictions),
@@ -188,18 +188,18 @@ describe('production retrieval evaluation adapter differential authority', () =>
     expect(gates).toMatchObject({
       authorityBindings: {
         corpusSemanticDigest:
-          '05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c',
+          '2e76715d952b84f3eb124c662ecb0b43acbbe98df1ad5f63b366d5f393a2f84e',
         independentReviewDigest:
-          'c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20',
+          '78f7cbfbf2f2ce0651ee03a9473961cf56f6370100f838fee8cf14ca9fae2892',
         baselineReportDigest:
-          '789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140',
+          '3ea8d00bd2fe09afe23d1989f14d3385d392b515b33ad5c3fd264db69ba7e3d7',
       },
       saturationProof: {
         proofDigest:
-          '4fde078b679dea3c434f77392b4b2f2a5b0c3a477b383d0699024b6414287921',
+          '7d6322ba1378eaaff2f1ee18207080d470cd3586b3c674aa3d186d64e7cc58f9',
       },
       semanticDigest:
-        '27550bd7d676a51b98177184b72a6ac11d7ccee350cee1b0d105915b6ce13261',
+        'be500a5b9b58f1911659e050653f80e122695c83d083b9c9767421c61269b18c',
     });
     const source = readFileSync(
       fileURLToPath(

@@ -435,6 +435,7 @@ export const deterministicCandidateProfileAuthorityV1Schema = Type.Object(
 );
 
 const assertionFieldIds = new Set([
+  'adoption-unit-type',
   'capability-variants-features',
   'required-infrastructure',
   'optional-infrastructure',

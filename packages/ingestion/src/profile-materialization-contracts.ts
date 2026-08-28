@@ -25,7 +25,7 @@ export const PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS = {
   catalogDigest:
     '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
   taxonomyDigest:
-    '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
+    '8b2806ec8862390d0368e1c06ed657983916530f1207be9072d9e4787a61d80e',
   profileSchemaDigest:
     '3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61',
   profileAuthoritySchemaDigest:

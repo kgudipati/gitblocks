@@ -98,8 +98,8 @@ describe('taxonomy authority command', () => {
 
     await expect(runTaxonomyCommand(root, 'validate')).resolves.toMatchObject({
       mode: 'validate',
-      concepts: 85,
-      resolvedAliases: 132,
+      concepts: 86,
+      resolvedAliases: 133,
       ambiguities: 11,
       exclusions: 26,
     });
