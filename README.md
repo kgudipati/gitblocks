@@ -4,8 +4,6 @@ GitBlocks is a planned agent-native open-source adoption layer that will help a
 developer's existing coding agent find, compare, and plan the adoption of OSS
 using target-codebase facts and attributable evidence.
 
-Changing this to see if adi picks it up.
-
 ## Problem and target user
 
 Professional TypeScript developers regularly need infrastructure capabilities
